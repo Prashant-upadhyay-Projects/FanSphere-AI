@@ -1,0 +1,51 @@
+%% FanSphere AI — system architecture
+%% Render with: mermaid-cli (mmdc -i architecture.mmd -o architecture.svg)
+%% Or paste into https://mermaid.live for live preview + SVG/PNG export.
+
+flowchart TB
+    subgraph SOURCES[" Raw sources "]
+        direction LR
+        S1["StatsBomb Open Data<br/>La Liga 2020/21<br/>10 fixtures · 53 goals"]
+        S2["Reddit Pushshift<br/>r/barca + r/realmadrid<br/>907,158 raw comments"]
+    end
+
+    subgraph ETL[" Python pipeline (src/) "]
+        direction TB
+        E1["load_statsbomb.py<br/>fixtures, scorelines, xG"]
+        E2["load_reddit_archive.py<br/>JSONL → parquet"]
+        L1["link_comments_to_matches.py<br/>confidence-scored joins<br/>±48h window · min 0.40"]
+        N1["sentiment.py<br/>VADER · NLTK<br/>compound ∈ [−1, +1]"]
+        N2["generate_metrics.py<br/>KMeans k=3 · authors ≥3 comments<br/>silhouette 0.40"]
+        SC["engagement.py<br/>composite score<br/>0.5 × football + 0.5 × fan"]
+    end
+
+    subgraph STORE[" Storage "]
+        DB[("fansphere.duckdb<br/>8 tables · 35 MB<br/>parquet cache via Evidence")]
+    end
+
+    subgraph VIZ[" Visualisation "]
+        direction LR
+        V1["Evidence.dev<br/>5-page interactive dashboard<br/>SvelteKit + ECharts"]
+        V2["fansphere_5pages_preview.html<br/>single-file static preview<br/>5 tabs · all charts inline"]
+    end
+
+    S1 --> E1
+    S2 --> E2
+    E1 --> L1
+    E2 --> L1
+    L1 --> N1
+    L1 --> N2
+    N1 --> SC
+    N2 --> SC
+    SC --> DB
+    DB --> V1
+    DB --> V2
+
+    classDef src   fill:#1C2230,stroke:#E11D5C,color:#F9FAFB
+    classDef etl   fill:#161B22,stroke:#22D3EE,color:#F9FAFB
+    classDef store fill:#0E1117,stroke:#FBBF24,color:#F9FAFB
+    classDef viz   fill:#1C2230,stroke:#22C55E,color:#F9FAFB
+    class S1,S2 src
+    class E1,E2,L1,N1,N2,SC etl
+    class DB store
+    class V1,V2 viz

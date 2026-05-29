@@ -1,0 +1,101 @@
+# FanSphere AI — Evidence theme
+# Charcoal canvas + Barça crimson accent for rivalry. Sentiment uses
+# diverging red→amber→green across pages.
+
+appearance:
+  default: dark
+  switcher: true
+
+theme:
+  colorPalettes:
+    default:
+      light:
+        - "#A50044"
+        - "#60A5FA"
+        - "#7C8DA0"
+        - "#22C55E"
+        - "#F59E0B"
+        - "#EF4444"
+        - "#8B5CF6"
+        - "#06B6D4"
+      dark:
+        - "#E11D5C"
+        - "#93C5FD"
+        - "#94A3B8"
+        - "#22C55E"
+        - "#F59E0B"
+        - "#EF4444"
+        - "#A78BFA"
+        - "#22D3EE"
+    rivalry:
+      light:
+        - "#A50044"
+        - "#7C8DA0"
+      dark:
+        - "#E11D5C"
+        - "#94A3B8"
+    segment:
+      light:
+        - "#7C8DA0"
+        - "#F59E0B"
+        - "#A50044"
+      dark:
+        - "#94A3B8"
+        - "#FBBF24"
+        - "#E11D5C"
+  colorScales:
+    sentiment:
+      light:
+        - "#EF4444"
+        - "#F1F5F9"
+        - "#22C55E"
+      dark:
+        - "#EF4444"
+        - "#1E293B"
+        - "#22C55E"
+    engagement:
+      light:
+        - "#F1F5F9"
+        - "#A50044"
+      dark:
+        - "#1E293B"
+        - "#E11D5C"
+    default:
+      light:
+        - "#F1F5F9"
+        - "#A50044"
+      dark:
+        - "#1E293B"
+        - "#E11D5C"
+  colors:
+    primary:
+      light: "#A50044"
+      dark: "#E11D5C"
+    accent:
+      light: "#F59E0B"
+      dark: "#FBBF24"
+    base:
+      light: "#FFFFFF"
+      dark: "#0E1117"
+    info:
+      light: "#60A5FA"
+      dark: "#93C5FD"
+    positive:
+      light: "#16A34A"
+      dark: "#22C55E"
+    negative:
+      light: "#DC2626"
+      dark: "#EF4444"
+    warning:
+      light: "#D97706"
+      dark: "#F59E0B"
+
+plugins:
+  components:
+    "@evidence-dev/core-components": {}
+  datasources:
+    "@evidence-dev/duckdb": {}
+    "@evidence-dev/csv": {}
+
+deployment:
+  basePath: "/FanSphere-AI"

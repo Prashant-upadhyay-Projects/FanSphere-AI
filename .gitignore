@@ -1,0 +1,49 @@
+# --- Environment ---------------------------------------------------------
+.env
+.venv/
+venv/
+env/
+
+# --- Python --------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# --- Data (keep folder, ignore contents) ---------------------------------
+data/*
+!data/.gitkeep
+outputs/*
+!outputs/.gitkeep
+
+# --- IDE -----------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# --- Power BI ------------------------------------------------------------
+*.pbix.tmp
+
+# --- Node / Evidence.dev (dashboard build artefacts) ---------------------
+dashboard/app/node_modules/
+dashboard/app/.evidence/
+dashboard/app/build/
+dashboard/app/.svelte-kit/
+
+# --- Sync / OS noise -----------------------------------------------------
+*.fuse_hidden*
+Thumbs.db
+
+# --- Cleanup artefacts ---------------------------------------------------
+dashboard/_broken_clone_remove_me/
+
+# --- Private research / understanding notes (kept locally, not pushed) ---
+_private_research/
+
+# --- Dashboard data sources (contain Reddit data / PII / large binaries) -
+dashboard/app/sources/fansphere/*.parquet
+dashboard/app/sources/fansphere/*.duckdb
+dashboard/app/sources/fansphere/fan_segments.csv

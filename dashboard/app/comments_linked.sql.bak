@@ -1,0 +1,7 @@
+-- Linking metadata only (for confidence-score histogram on methodology page).
+select
+    match_id,
+    comment_id,
+    link_confidence,
+    link_reasons
+from read_parquet('/tmp/evidence-template/datafiles/comments_linked.parquet')

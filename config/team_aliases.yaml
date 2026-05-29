@@ -1,0 +1,152 @@
+# =============================================================================
+# Team alias and rivalry configuration for match-comment linking.
+# =============================================================================
+# This file is the *single source of truth* for what counts as a reference to a
+# given team. Keeping it external means analysts/non-engineers can extend
+# coverage (more teams, more languages, new nicknames) without touching code.
+#
+# Conventions
+# -----------
+# - All aliases are lowercase (matcher lowercases inputs).
+# - Multi-word aliases are matched as phrases with word boundaries.
+# - `home_subreddits` are *strong priors*: a comment in r/Gunners mentioning
+#   "the lads" can be treated as Arsenal-related even without explicit "arsenal"
+#   text, because subreddit context disambiguates.
+# - `rivalries` define keywords that imply *both* teams without naming either.
+# - Add new teams by appending; the linker will pick them up automatically.
+
+teams:
+  Arsenal:
+    aliases: [arsenal, gunners, the gunners, afc]
+    home_subreddits: [gunners]
+
+  Manchester United:
+    aliases: [manchester united, man utd, man united, manutd, united, red devils]
+    home_subreddits: [reddevils]
+
+  Manchester City:
+    aliases: [manchester city, man city, mancity, citizens, the cityzens]
+    home_subreddits: [mcfc]
+
+  Liverpool:
+    aliases: [liverpool, lfc, the reds, anfield]
+    home_subreddits: [liverpoolfc]
+
+  Chelsea:
+    aliases: [chelsea, the blues, cfc, stamford bridge]
+    home_subreddits: [chelseafc]
+
+  Tottenham:
+    aliases: [tottenham, spurs, thfc, the lilywhites]
+    home_subreddits: [coys]
+
+  Barcelona:
+    aliases: [barcelona, barca, fc barcelona, fcb, blaugrana, culers, cules]
+    home_subreddits: [barca]
+
+  Real Madrid:
+    aliases: [real madrid, los blancos, los merengues, madridistas]
+    home_subreddits: [realmadrid]
+    # Note: bare "madrid" is intentionally excluded because it collides with
+    # Atletico Madrid and the city itself. Linker uses "real madrid" + subreddit
+    # priors instead.
+
+  Atletico Madrid:
+    aliases: [atletico madrid, atletico, atleti, colchoneros, rojiblancos]
+    home_subreddits: [atletico]
+
+  Bayern Munich:
+    aliases: [bayern munich, bayern, fc bayern, fcb munchen, die roten]
+    home_subreddits: [fcbayern]
+
+  Borussia Dortmund:
+    aliases: [borussia dortmund, dortmund, bvb, die schwarzgelben]
+    home_subreddits: [borussiadortmund]
+
+  Juventus:
+    aliases: [juventus, juve, bianconeri, la vecchia signora]
+    home_subreddits: [juve]
+
+  AC Milan:
+    aliases: [ac milan, milan, rossoneri, i diavoli]
+    home_subreddits: [acmilan]
+
+  Inter Milan:
+    aliases: [inter milan, inter, internazionale, nerazzurri]
+    home_subreddits: [fcinternazionale]
+
+  Paris Saint-Germain:
+    aliases: [paris saint-germain, psg, paris sg, les parisiens]
+    home_subreddits: [psg]
+
+  Real Sociedad:
+    aliases: [real sociedad, la real, txuri-urdin, donostia]
+    home_subreddits: [realsociedad]
+
+  Real Betis:
+    aliases: [real betis, betis, los verdiblancos, beticos]
+    home_subreddits: [realbetis]
+
+  Sevilla:
+    aliases: [sevilla, sevilla fc, los nervionenses, rojiblancos sevillanos]
+    home_subreddits: [sevillafc]
+
+  Villarreal:
+    aliases: [villarreal, the yellow submarine, submarino amarillo, groguets]
+    home_subreddits: [villarrealcf]
+
+  Valencia:
+    aliases: [valencia, valencia cf, los che, vcf]
+    home_subreddits: [valenciacf]
+
+  Athletic Bilbao:
+    aliases: [athletic bilbao, athletic club, los leones, rojiblancos]
+    home_subreddits: [athletic]
+
+# =============================================================================
+# Rivalries — keywords that imply both teams without naming either explicitly.
+# Used as a confidence bonus during linking.
+# =============================================================================
+rivalries:
+  El Clasico:
+    teams: [Barcelona, Real Madrid]
+    keywords: [clasico, "el clasico", classico]
+
+  North West Derby:
+    teams: [Liverpool, Manchester United]
+    keywords: [north west derby, "nw derby"]
+
+  Manchester Derby:
+    teams: [Manchester United, Manchester City]
+    keywords: [manchester derby, manc derby]
+
+  North London Derby:
+    teams: [Arsenal, Tottenham]
+    keywords: [north london derby, "nld"]
+
+  Der Klassiker:
+    teams: [Bayern Munich, Borussia Dortmund]
+    keywords: [der klassiker, klassiker]
+
+  Derby della Madonnina:
+    teams: [AC Milan, Inter Milan]
+    keywords: [derby della madonnina, milan derby]
+
+  Madrid Derby:
+    teams: [Real Madrid, Atletico Madrid]
+    keywords: [madrid derby, derbi madrileno]
+
+# =============================================================================
+# Generic football-discussion priors — subreddits where any team match counts
+# but with slightly lower confidence (since the sub isn't team-specific).
+# =============================================================================
+generic_football_subreddits:
+  - soccer
+  - football
+  - footballtactics
+  - championsleague
+  - premierleague
+  - laliga
+  - bundesliga
+  - seriea
+  - ligue1

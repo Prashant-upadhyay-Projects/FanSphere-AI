@@ -1,0 +1,15 @@
+-- Per-comment table with VADER sentiment + body + upvotes.
+-- 93,298 rows. Drives Match Drill-Down (Page 2) and Sentiment Timeline (Page 4).
+select
+    match_id,
+    comment_id,
+    subreddit,
+    author,
+    created_utc,
+    minutes_from_kickoff,
+    link_confidence,
+    body,
+    score as upvotes,
+    sentiment_score,
+    sentiment_label
+from read_parquet('/tmp/evidence-template/datafiles/comments_enriched.parquet')

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FanSphere AI · Executive Overview (Preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<style>
+  :root {
+    --bg:        #0E1117;
+    --surface:   #161B22;
+    --surface-2: #1C2230;
+    --border:    #2A3142;
+    --text-hi:   #F9FAFB;
+    --text:      #D1D5DB;
+    --text-mid:  #9CA3AF;
+    --text-lo:   #6B7280;
+    --crimson:   #E11D5C;
+    --crimson-glow: rgba(225,29,92,0.20);
+    --steel:     #94A3B8;
+    --amber:     #F59E0B;
+    --green:     #22C55E;
+    --red:       #EF4444;
+    --blue:      #3B82F6;
+    --font-ui:   'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text-hi);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 32px 64px;
+  }
+
+  /* ── PREVIEW BANNER ────────────────────────────────────────────── */
+  .preview-banner {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    color: var(--amber);
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .preview-banner b { color: #FBBF24; }
+
+  /* ── HERO ─────────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, rgba(225,29,92,0.10) 0%, rgba(225,29,92,0) 60%), var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .hero-brand { display: flex; align-items: center; gap: 18px; }
+  .hero-logo {
+    width: 60px; height: 60px;
+    background: var(--crimson);
+    color: white;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
+    box-shadow: 0 8px 24px var(--crimson-glow);
+  }
+  .hero-title {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.5px;
+    line-height: 1.1; color: var(--text-hi);
+  }
+  .hero-sub {
+    font-size: 14px; color: var(--text-mid); margin-top: 6px;
+    font-weight: 400;
+  }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-block;
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+  }
+  .chip-crimson {
+    background: var(--crimson-glow);
+    color: #FCA5A5;
+    border-color: rgba(225,29,92,0.3);
+  }
+
+  /* ── KPI CARDS ────────────────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-label {
+    font-size: 10px;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text-hi);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .kpi-value.text {
+    font-family: var(--font-ui);
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  .kpi-value.positive { color: var(--green); }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-lo);
+    margin-top: 10px;
+  }
+  .kpi-sub b { color: var(--text-mid); font-weight: 500; }
+  .kpi-trend {
+    display: inline-flex; align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(34,197,94,0.12);
+    color: var(--green);
+    margin-top: 8px;
+  }
+
+  /* ── SECTION HEADERS ──────────────────────────────────────────── */
+  .section-head {
+    margin-bottom: 8px;
+    padding-top: 12px;
+  }
+  .section-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text-hi);
+    letter-spacing: -0.01em;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-top: 6px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── FILTER BUTTONS ───────────────────────────────────────────── */
+  .filters {
+    display: flex;
+    gap: 0;
+    margin: 8px 0 24px 0;
+    background: var(--surface);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-mid);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: var(--font-ui);
+  }
+  .filter-btn:hover { color: var(--text-hi); }
+  .filter-btn.active {
+    background: var(--crimson);
+    color: white;
+  }
+
+  /* ── CHART CARDS ─────────────────────────────────────────────── */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 24px 16px;
+    margin-bottom: 24px;
+  }
+  .chart-canvas { height: 460px; width: 100%; }
+  .chart-canvas-bar { height: 440px; width: 100%; }
+
+  .callout {
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 20px 0 24px 0;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .callout b { color: var(--text-hi); }
+  .callout em { color: var(--amber); font-style: normal; font-weight: 600; }
+
+  /* ── DETAIL TABLE ────────────────────────────────────────────── */
+  table.detail {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.detail thead th {
+    text-align: left;
+    padding: 12px 12px;
+    color: var(--text-mid);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  table.detail thead th.num { text-align: right; }
+  table.detail tbody tr { border-bottom: 1px solid rgba(42,49,66,0.5); }
+  table.detail tbody tr:hover { background: rgba(255,255,255,0.02); }
+  table.detail tbody td {
+    padding: 12px 12px;
+    color: var(--text);
+  }
+  table.detail tbody td.num { text-align: right; font-family: var(--font-mono); font-size: 12px; }
+  table.detail tbody td.rank {
+    font-family: var(--font-mono);
+    color: var(--text-mid);
+    width: 32px;
+  }
+  table.detail tbody tr.rivalry td.rank,
+  table.detail tbody tr.rivalry td.match { color: var(--crimson); font-weight: 600; }
+  .scale-cell {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .rivalry-tag {
+    display: inline-block;
+    background: var(--crimson-glow);
+    color: #FCA5A5;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── NARRATIVE ───────────────────────────────────────────────── */
+  .narrative {
+    margin-top: 40px;
+  }
+  .narrative h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-hi);
+  }
+  .narrative p {
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.65;
+  }
+  .narrative p b { color: var(--text-hi); }
+  .narrative p em { color: var(--amber); font-style: normal; font-weight: 600; }
+
+  /* ── PAGE FOOTER ─────────────────────────────────────────────── */
+  .page-footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-mid);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .page-footer a { color: var(--crimson); text-decoration: none; }
+  .page-footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="preview-banner">
+    <b>Preview</b> · This is a static render of Page 1 (Executive Overview) using the real enriched data. Live Evidence.dev version with filters, drill-downs, and Pages 2–5 ships once <code>npm install &amp;&amp; npm run dev</code> runs locally — see <b>HANDOFF.md</b> in the dashboard folder.
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-brand">
+      <div class="hero-logo">FS</div>
+      <div>
+        <div class="hero-title">FanSphere AI</div>
+        <div class="hero-sub">La Liga 2020/21 · Fan engagement intelligence platform</div>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <span class="chip chip-crimson">10 fixtures</span>
+      <span class="chip">907,158 raw comments · 93,298 linked</span>
+      <span class="chip">VADER sentiment + KMeans (k=3) segmentation</span>
+      <span class="chip">3,628 authors clustered · silhouette 0.40</span>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Reddit comments analysed</div>
+      <div class="kpi-value" id="kpi-comments">93,298</div>
+      <div class="kpi-sub">linked to <b>10 matches</b> across <b>2 subreddits</b></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg combined engagement</div>
+      <div class="kpi-value" id="kpi-combined">0.443</div>
+      <div class="kpi-sub">Football side: <b>0.489</b> · Fan side: <b>0.397</b></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Top match by engagement</div>
+      <div class="kpi-value text">Real Sociedad<br>vs Barcelona</div>
+      <div class="kpi-sub">Score line <b>1–6</b> · combined <b>0.690</b></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Rivalry premium vs non-rivalry</div>
+      <div class="kpi-value positive" id="kpi-premium">+5.3%</div>
+      <div class="kpi-sub">El Clásico avg <b>0.461</b> vs non-rivalry <b>0.438</b></div>
+    </div>
+  </div>
+
+  <!-- DIVERGENCE -->
+  <div class="section-head">
+    <div class="section-title">Where fan attention and on-pitch excitement diverge</div>
+    <div class="section-sub">Above the diagonal: fans engaged more than the football warranted. Below: the opposite. Bubble size = total goals. <b>This single chart is the El Clásico paradox.</b></div>
+  </div>
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">All matches</button>
+    <button class="filter-btn" data-filter="rivalry">Rivalry only</button>
+    <button class="filter-btn" data-filter="non">Non-rivalry</button>
+  </div>
+  <div class="chart-card">
+    <div id="divergenceChart" class="chart-canvas"></div>
+  </div>
+  <div class="callout">
+    <b>How to read this:</b> The diagonal is "fans matched the football."
+    Both El&nbsp;Clásicos sit far above the diagonal — fans went off even though the on-pitch excitement was mid-pack.
+    Real Sociedad 1–6 Barcelona sits far to the right: 7 goals on the pitch, only moderate fan reaction.
+    <em>Fans don't just react to goals — they react to stakes.</em>
+  </div>
+
+  <!-- RANKING BAR -->
+  <div class="section-head">
+    <div class="section-title">Combined engagement ranking</div>
+    <div class="section-sub">Composite score = ½ × on-pitch (normalised) + ½ × fan-side. Crimson bars mark rivalry fixtures.</div>
+  </div>
+  <div class="chart-card">
+    <div id="rankingChart" class="chart-canvas-bar"></div>
+  </div>
+
+  <!-- DETAIL TABLE -->
+  <div class="section-head">
+    <div class="section-title">Full ranking with detail</div>
+    <div class="section-sub">Color intensity = magnitude of each score (within column).</div>
+  </div>
+  <div class="chart-card" style="padding: 0; overflow: hidden;">
+    <table class="detail" id="detailTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Match</th>
+          <th>Date</th>
+          <th>Score</th>
+          <th class="num">Goals</th>
+          <th>Type</th>
+          <th class="num">Fan comments</th>
+          <th class="num">Fan score</th>
+          <th class="num">Football score</th>
+          <th class="num">Combined</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- NARRATIVE -->
+  <div class="narrative">
+    <h3>The story this dashboard tells</h3>
+    <p><b>El Clásico generates the most raw fan volume — but doesn't win on combined score.</b> The April 2021 Clásico saw 17,089 comments (the highest in the dataset), yet ranks #7 of 10 on combined engagement because it had only 3 goals. The October 2020 Clásico (1–3) ranks #4 despite 14,866 comments. <em>Volume tells you where fans gather. Combined score tells you which matches were "events."</em></p>
+    <p><b>The biggest goal-fests rank highest.</b> Real Sociedad 1–6 Barcelona (7 goals) and Barcelona 5–2 Real Betis (7 goals) take the top two slots — the composite score weights on-pitch excitement equally with fan reaction, and 7 goals normalises to a perfect football score.</p>
+    <p><b>Fan volatility tells you what the average doesn't.</b> Fans argue during rivalry games even when their team wins. The sentiment volatility analysis on Page 4 (Sentiment Timeline) makes this explicit — non-rivalry wins have the calmest fanbases, regardless of margin.</p>
+  </div>
+
+  <div class="page-footer">
+    <span>Methodology and data lineage on the <a href="#methodology">Methodology</a> page · Pipeline: StatsBomb → Reddit Pushshift → VADER → KMeans → Evidence.dev</span>
+    <span>Page 1 of 5 · Preview rendered <span id="render-date"></span></span>
+  </div>
+
+</div>
+
+<script>
+const DATA = /*__DATA__*/ {};
+
+// Will inject real data via a separate script tag below
+</script>
+<script id="payload" type="application/json">{
+  "kpis": {
+    "total_comments": 93298,
+    "avg_combined": 0.4429299756845772,
+    "avg_football": 0.48888888888888876,
+    "avg_fans": 0.3969710624802657,
+    "top_match": "Real Sociedad vs Barcelona",
+    "top_score_str": "1-6",
+    "top_engagement": 0.6901050692719755,
+    "rivalry_premium": 0.05266844747210344,
+    "rivalry_avg": 0.461398184632532,
+    "non_rivalry_avg": 0.4383129234475886
+  },
+  "divergence": [
+    {
+      "match_label": "Barcelona vs Real Madrid",
+      "football": 0.4444444444444444,
+      "fans": 0.6806008997455708,
+      "goals": 4,
+      "is_rivalry": true,
+      "score_str": "1-3"
+    },
+    {
+      "match_label": "Real Madrid vs Barcelona",
+      "football": 0.1111111111111111,
+      "fans": 0.609436283229002,
+      "goals": 3,
+      "is_rivalry": true,
+      "score_str": "2-1"
+    },
+    {
+      "match_label": "Barcelona vs Getafe",
+      "football": 0.3333333333333333,
+      "fans": 0.4600320119295734,
+      "goals": 7,
+      "is_rivalry": false,
+      "score_str": "5-2"
+    },
+    {
+      "match_label": "Real Sociedad vs Barcelona",
+      "football": 1.0,
+      "fans": 0.3802101385439508,
+      "goals": 7,
+      "is_rivalry": false,
+      "score_str": "1-6"
+    },
+    {
+      "match_label": "Barcelona vs Real Betis",
+      "football": 1.0,
+      "fans": 0.2719047908707448,
+      "goals": 7,
+      "is_rivalry": false,
+      "score_str": "5-2"
+    },
+    {
+      "match_label": "Levante UD vs Barcelona",
+      "football": 0.6666666666666666,
+      "fans": 0.4996559783847137,
+      "goals": 6,
+      "is_rivalry": false,
+      "score_str": "3-3"
+    },
+    {
+      "match_label": "Barcelona vs Deportivo Alav\u00e9s",
+      "football": 0.6666666666666666,
+      "fans": 0.1716148277768196,
+      "goals": 6,
+      "is_rivalry": false,
+      "score_str": "5-1"
+    },
+    {
+      "match_label": "Real Betis vs Barcelona",
+      "football": 0.0,
+      "fans": 0.2718235808980409,
+      "goals": 5,
+      "is_rivalry": false,
+      "score_str": "2-3"
+    },
+    {
+      "match_label": "Valencia vs Barcelona",
+      "football": 0.3333333333333333,
+      "fans": 0.3434062763530427,
+      "goals": 5,
+      "is_rivalry": false,
+      "score_str": "2-3"
+    },
+    {
+      "match_label": "Barcelona vs Huesca",
+      "football": 0.3333333333333333,
+      "fans": 0.2810258370711986,
+      "goals": 5,
+      "is_rivalry": false,
+      "score_str": "4-1"
+    }
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "match_label": "Real Sociedad vs Barcelona",
+      "score_str": "1-6",
+      "total_goals": 7,
+      "is_rivalry": false,
+      "fan_comments": 7224,
+      "fan_score": 0.3802101385439508,
+      "football_score": 1.0,
+      "combined": 0.6901050692719755,
+      "match_date": "2021-03-21"
+    },
+    {
+      "rank": 2,
+      "match_label": "Barcelona vs Real Betis",
+      "score_str": "5-2",
+      "total_goals": 7,
+      "is_rivalry": false,
+      "fan_comments": 6888,
+      "fan_score": 0.2719047908707448,
+      "football_score": 1.0,
+      "combined": 0.6359523954353724,
+      "match_date": "2020-11-07"
+    },
+    {
+      "rank": 3,
+      "match_label": "Levante UD vs Barcelona",
+      "score_str": "3-3",
+      "total_goals": 6,
+      "is_rivalry": false,
+      "fan_comments": 11383,
+      "fan_score": 0.4996559783847137,
+      "football_score": 0.6666666666666666,
+      "combined": 0.5831613225256902,
+      "match_date": "2021-05-11"
+    },
+    {
+      "rank": 4,
+      "match_label": "Barcelona vs Real Madrid",
+      "score_str": "1-3",
+      "total_goals": 4,
+      "is_rivalry": true,
+      "fan_comments": 14866,
+      "fan_score": 0.6806008997455708,
+      "football_score": 0.4444444444444444,
+      "combined": 0.5625226720950076,
+      "match_date": "2020-10-24"
+    },
+    {
+      "rank": 5,
+      "match_label": "Barcelona vs Deportivo Alav\u00e9s",
+      "score_str": "5-1",
+      "total_goals": 6,
+      "is_rivalry": false,
+      "fan_comments": 5986,
+      "fan_score": 0.1716148277768196,
+      "football_score": 0.6666666666666666,
+      "combined": 0.4191407472217431,
+      "match_date": "2021-02-13"
+    },
+    {
+      "rank": 6,
+      "match_label": "Barcelona vs Getafe",
+      "score_str": "5-2",
+      "total_goals": 7,
+      "is_rivalry": false,
+      "fan_comments": 9104,
+      "fan_score": 0.4600320119295734,
+      "football_score": 0.3333333333333333,
+      "combined": 0.3966826726314533,
+      "match_date": "2021-04-22"
+    },
+    {
+      "rank": 7,
+      "match_label": "Real Madrid vs Barcelona",
+      "score_str": "2-1",
+      "total_goals": 3,
+      "is_rivalry": true,
+      "fan_comments": 17089,
+      "fan_score": 0.609436283229002,
+      "football_score": 0.1111111111111111,
+      "combined": 0.3602736971700565,
+      "match_date": "2021-04-10"
+    },
+    {
+      "rank": 8,
+      "match_label": "Valencia vs Barcelona",
+      "score_str": "2-3",
+      "total_goals": 5,
+      "is_rivalry": false,
+      "fan_comments": 7008,
+      "fan_score": 0.3434062763530427,
+      "football_score": 0.3333333333333333,
+      "combined": 0.338369804843188,
+      "match_date": "2021-05-02"
+    },
+    {
+      "rank": 9,
+      "match_label": "Barcelona vs Huesca",
+      "score_str": "4-1",
+      "total_goals": 5,
+      "is_rivalry": false,
+      "fan_comments": 7284,
+      "fan_score": 0.2810258370711986,
+      "football_score": 0.3333333333333333,
+      "combined": 0.3071795852022659,
+      "match_date": "2021-03-15"
+    },
+    {
+      "rank": 10,
+      "match_label": "Real Betis vs Barcelona",
+      "score_str": "2-3",
+      "total_goals": 5,
+      "is_rivalry": false,
+      "fan_comments": 6466,
+      "fan_score": 0.2718235808980409,
+      "football_score": 0.0,
+      "combined": 0.1359117904490204,
+      "match_date": "2021-02-07"
+    }
+  ]
+}</script>
+<script>
+// Parse the payload safely
+const DATA_REAL = JSON.parse(document.getElementById('payload').textContent);
+Object.assign(DATA, DATA_REAL);
+
+// Render date
+document.getElementById('render-date').textContent = new Date().toISOString().split('T')[0];
+
+// === DIVERGENCE SCATTER ============================================
+const divergenceChart = echarts.init(document.getElementById('divergenceChart'), null, { renderer: 'canvas' });
+function makeDivergenceOption(filter) {
+  const rows = DATA.divergence.filter(d => {
+    if (filter === 'rivalry') return d.is_rivalry;
+    if (filter === 'non') return !d.is_rivalry;
+    return true;
+  });
+  const rivalry = rows.filter(d => d.is_rivalry).map(d => ([d.football, d.fans, d.goals, d.match_label, d.score_str]));
+  const nonRivalry = rows.filter(d => !d.is_rivalry).map(d => ([d.football, d.fans, d.goals, d.match_label, d.score_str]));
+  return {
+    backgroundColor: 'transparent',
+    grid: { left: 64, right: 24, top: 56, bottom: 56 },
+    legend: {
+      top: 8, right: 0,
+      textStyle: { color: '#D1D5DB' },
+      data: [
+        { name: 'Rivalry (El Clásico)', icon: 'circle' },
+        { name: 'Non-rivalry', icon: 'circle' }
+      ]
+    },
+    tooltip: {
+      backgroundColor: '#1C2230',
+      borderColor: '#2A3142',
+      textStyle: { color: '#F9FAFB' },
+      formatter: p => `<b>${p.data[3]}</b> (${p.data[4]})<br/>
+        On-pitch: <b>${p.data[0].toFixed(3)}</b><br/>
+        Fan: <b>${p.data[1].toFixed(3)}</b><br/>
+        Goals: <b>${p.data[2]}</b>`
+    },
+    xAxis: {
+      name: 'On-pitch engagement (normalised)',
+      nameLocation: 'middle', nameGap: 32,
+      nameTextStyle: { color: '#9CA3AF', fontSize: 12 },
+      min: 0, max: 1.05,
+      axisLabel: { color: '#9CA3AF', fontFamily: 'JetBrains Mono' },
+      axisLine: { lineStyle: { color: '#2A3142' } },
+      splitLine: { lineStyle: { color: '#1C2230' } }
+    },
+    yAxis: {
+      name: 'Fan engagement (normalised)',
+      nameLocation: 'middle', nameGap: 48,
+      nameTextStyle: { color: '#9CA3AF', fontSize: 12 },
+      min: 0, max: 1.0,
+      axisLabel: { color: '#9CA3AF', fontFamily: 'JetBrains Mono' },
+      axisLine: { lineStyle: { color: '#2A3142' } },
+      splitLine: { lineStyle: { color: '#1C2230' } }
+    },
+    series: [
+      {
+        name: 'Non-rivalry',
+        type: 'scatter',
+        data: nonRivalry,
+        symbolSize: d => 8 + d[2] * 3.5,
+        itemStyle: { color: '#94A3B8', opacity: 0.85, borderColor: '#1C2230', borderWidth: 1 },
+        label: {
+          show: true,
+          position: 'top',
+          color: '#D1D5DB',
+          fontSize: 10,
+          formatter: p => p.data[3],
+          distance: 6
+        },
+        z: 1
+      },
+      {
+        name: 'Rivalry (El Clásico)',
+        type: 'scatter',
+        data: rivalry,
+        symbolSize: d => 8 + d[2] * 3.5,
+        itemStyle: { color: '#E11D5C', opacity: 0.95, borderColor: '#0E1117', borderWidth: 1.5, shadowColor: 'rgba(225,29,92,0.6)', shadowBlur: 12 },
+        label: {
+          show: true,
+          position: 'top',
+          color: '#FCA5A5',
+          fontSize: 11,
+          fontWeight: 600,
+          formatter: p => p.data[3],
+          distance: 8
+        },
+        z: 2
+      },
+      {
+        // Diagonal reference line
+        name: 'Diagonal',
+        type: 'line',
+        showSymbol: false,
+        data: [[0, 0], [1, 1]],
+        lineStyle: { color: '#2A3142', type: 'dashed', width: 1.5 },
+        tooltip: { show: false },
+        silent: true,
+        z: 0
+      }
+    ]
+  };
+}
+divergenceChart.setOption(makeDivergenceOption('all'));
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    divergenceChart.setOption(makeDivergenceOption(btn.dataset.filter), true);
+  });
+});
+
+// === RANKING BAR ====================================================
+const rankingChart = echarts.init(document.getElementById('rankingChart'), null, { renderer: 'canvas' });
+const sortedRanking = [...DATA.ranking].sort((a, b) => a.combined - b.combined); // ascending so largest at top
+rankingChart.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 220, right: 60, top: 16, bottom: 32 },
+  tooltip: {
+    backgroundColor: '#1C2230',
+    borderColor: '#2A3142',
+    textStyle: { color: '#F9FAFB' },
+    formatter: p => `<b>${p.data.match_label}</b> (${p.data.score_str})<br/>
+      Combined: <b>${p.data.value.toFixed(3)}</b><br/>
+      ${p.data.is_rivalry ? '<span style="color:#FCA5A5">Rivalry</span>' : 'Non-rivalry'}`
+  },
+  xAxis: {
+    type: 'value',
+    max: 0.8,
+    axisLabel: { color: '#9CA3AF', fontFamily: 'JetBrains Mono', formatter: v => v.toFixed(2) },
+    axisLine: { show: false },
+    splitLine: { lineStyle: { color: '#1C2230' } }
+  },
+  yAxis: {
+    type: 'category',
+    data: sortedRanking.map(r => `#${r.rank}  ${r.match_label}`),
+    axisLabel: {
+      color: '#D1D5DB',
+      fontSize: 12,
+      formatter: v => v,
+      rich: {}
+    },
+    axisLine: { lineStyle: { color: '#2A3142' } },
+    axisTick: { show: false }
+  },
+  series: [{
+    type: 'bar',
+    barWidth: 18,
+    data: sortedRanking.map(r => ({
+      value: r.combined,
+      match_label: r.match_label,
+      score_str: r.score_str,
+      is_rivalry: r.is_rivalry,
+      itemStyle: {
+        color: r.is_rivalry ? '#E11D5C' : '#94A3B8',
+        borderRadius: [0, 4, 4, 0],
+        shadowColor: r.is_rivalry ? 'rgba(225,29,92,0.4)' : 'transparent',
+        shadowBlur: r.is_rivalry ? 8 : 0
+      }
+    })),
+    label: {
+      show: true,
+      position: 'right',
+      color: '#D1D5DB',
+      fontFamily: 'JetBrains Mono',
+      fontSize: 12,
+      formatter: p => p.value.toFixed(3)
+    }
+  }]
+});
+
+// === DETAIL TABLE ===================================================
+const tbody = document.querySelector('#detailTable tbody');
+// Compute max per column for colorscale
+const max = {
+  fan_comments: Math.max(...DATA.ranking.map(r => r.fan_comments)),
+  fan_score: Math.max(...DATA.ranking.map(r => r.fan_score)),
+  football_score: Math.max(...DATA.ranking.map(r => r.football_score)),
+  combined: Math.max(...DATA.ranking.map(r => r.combined)),
+};
+function scaleBg(val, max) {
+  const t = Math.min(1, val / max);
+  // muted slate -> crimson
+  const r = Math.round(28 + t * (225 - 28));
+  const g = Math.round(34 + t * (29 - 34));
+  const b = Math.round(48 + t * (92 - 48));
+  return `rgba(${r},${g},${b},${0.25 + 0.55 * t})`;
+}
+DATA.ranking.forEach(r => {
+  const tr = document.createElement('tr');
+  if (r.is_rivalry) tr.className = 'rivalry';
+  tr.innerHTML = `
+    <td class="rank">${r.rank}</td>
+    <td class="match">${r.match_label}</td>
+    <td>${new Date(r.match_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+    <td>${r.score_str}</td>
+    <td class="num">${r.total_goals}</td>
+    <td>${r.is_rivalry ? '<span class="rivalry-tag">Rivalry</span>' : '<span style="color:#6B7280">—</span>'}</td>
+    <td class="num"><span class="scale-cell" style="background:${scaleBg(r.fan_comments, max.fan_comments)}">${r.fan_comments.toLocaleString()}</span></td>
+    <td class="num"><span class="scale-cell" style="background:${scaleBg(r.fan_score, max.fan_score)}">${r.fan_score.toFixed(3)}</span></td>
+    <td class="num"><span class="scale-cell" style="background:${scaleBg(r.football_score, max.football_score)}">${r.football_score.toFixed(3)}</span></td>
+    <td class="num"><span class="scale-cell" style="background:${scaleBg(r.combined, max.combined)}">${r.combined.toFixed(3)}</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// Resize handling
+window.addEventListener('resize', () => {
+  divergenceChart.resize();
+  rankingChart.resize();
+});
+</script>
+</body>
+</html>

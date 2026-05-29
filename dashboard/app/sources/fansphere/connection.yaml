@@ -1,0 +1,4 @@
+name: fansphere
+type: duckdb
+options:
+  filename: fansphere.duckdb

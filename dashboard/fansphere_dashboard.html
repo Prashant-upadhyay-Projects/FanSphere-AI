@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FanSphere AI · Dashboard</title>
+  <!-- Chart.js 4 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <!-- Annotation plugin (diagonal line, labels on scatter) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+  <!-- Datalabels plugin (values on ranking bar) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+
+  <style>
+    /* ─── RESET & ROOT ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:           #1A1F2B;
+      --panel:        #20263A;
+      --panel-border: #2D3548;
+      --text-hi:      #F9FAFB;
+      --text-mid:     #9CA3AF;
+      --text-lo:      #6B7280;
+      --blue:         #3B82F6;
+      --green:        #22C55E;
+      --red:          #EF4444;
+      --amber:        #F59E0B;
+      --grey:         #6B7280;
+      --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text-hi);
+      font-family: var(--font);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ─── HEADER ────────────────────────────────────────────────────────────── */
+    .header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-logo {
+      width: 36px; height: 36px;
+      background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13px; letter-spacing: -0.5px;
+      color: #fff; flex-shrink: 0;
+    }
+    .header-title   { font-size: 17px; font-weight: 600; }
+    .header-sub     { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+
+    /* ─── NAV TABS ──────────────────────────────────────────────────────────── */
+    .nav {
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 0 32px;
+      display: flex;
+    }
+    .nav-tab {
+      padding: 14px 22px;
+      font-size: 13px;
+      color: var(--text-mid);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s;
+      user-select: none;
+    }
+    .nav-tab:hover   { color: var(--text-hi); }
+    .nav-tab.active  { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+
+    /* ─── PAGES ─────────────────────────────────────────────────────────────── */
+    .page          { display: none; padding: 24px 32px 8px; }
+    .page.active   { display: block; }
+    .page-title    { font-size: 24px; font-weight: 600; color: var(--text-hi); }
+    .page-subtitle { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
+    .page-header   { margin-bottom: 20px; }
+
+    /* ─── KPI CARDS ─────────────────────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .kpi-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .kpi-label {
+      font-size: 10px;
+      color: var(--text-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+    }
+    .kpi-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--text-hi);
+      line-height: 1;
+    }
+    .kpi-value.lg { font-size: 18px; line-height: 1.35; }
+    .kpi-value.positive { color: var(--green); }
+    .kpi-value.negative { color: var(--red); }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-lo);
+      margin-top: 7px;
+    }
+    .kpi-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-top: 6px;
+    }
+    .kpi-badge.amber { background: rgba(245,158,11,.18); color: var(--amber); }
+
+    /* ─── CHART LAYOUTS ─────────────────────────────────────────────────────── */
+    .chart-grid-2 {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .chart-grid-equal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .chart-full { margin-bottom: 14px; }
+
+    .chart-panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 20px 20px 16px;
+    }
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-hi);
+      margin-bottom: 3px;
+    }
+    .chart-subtitle {
+      font-size: 11px;
+      color: var(--text-mid);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* ─── LEGEND ─────────────────────────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-mid);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+    .footer {
+      font-size: 11px;
+      color: var(--text-lo);
+      padding: 12px 32px 18px;
+      border-top: 1px solid var(--panel-border);
+    }
+
+    /* ─── CANVAS WRAPPER ─────────────────────────────────────────────────────── */
+    .canvas-wrap { position: relative; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ HEADER ════════════════════════════════ -->
+<div class="header">
+  <div class="header-logo">FS</div>
+  <div>
+    <div class="header-title">FanSphere AI</div>
+    <div class="header-sub">La Liga 2020/21 &nbsp;·&nbsp; Fan Engagement Intelligence Platform</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ NAV ═══════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-tab active" data-page="p1" onclick="switchPage(this, 'p1')">Executive Overview</div>
+  <div class="nav-tab"        data-page="p2" onclick="switchPage(this, 'p2')">Fan Sentiment</div>
+</nav>
+
+<!-- ═══════════════════════ PAGE 1 — EXECUTIVE OVERVIEW ═══════════════════ -->
+<div class="page active" id="p1">
+  <div class="page-header">
+    <div class="page-title">Executive Overview</div>
+    <div class="page-subtitle">Combined engagement score = 0.5 × on-pitch excitement (normalised) + 0.5 × fan engagement score &nbsp;·&nbsp; Both axes [0, 1]</div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Top Match by Combined Score</div>
+      <div class="kpi-value lg">Real Sociedad<br>vs Barcelona</div>
+      <div class="kpi-sub">Score: 0.690 &nbsp;·&nbsp; Score line: 1–6 &nbsp;·&nbsp; 7 goals</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Fan Comments</div>
+      <div class="kpi-value">93,298</div>
+      <div class="kpi-sub">Across 10 matches &nbsp;·&nbsp; 2 subreddits</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Combined Score</div>
+      <div class="kpi-value">0.443</div>
+      <div class="kpi-sub">Normalised [0, 1] composite</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rivalry Matches</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub">El Clásico home &amp; away</div>
+      <span class="kpi-badge amber">El Clásico</span>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="chart-grid-2">
+
+    <!-- ① Engagement Divergence Scatter -->
+    <div class="chart-panel">
+      <div class="chart-title">Where fan attention and on-pitch excitement diverge</div>
+      <div class="chart-subtitle">Above the diagonal: fans engaged more than the football warranted. &nbsp;Below: the opposite. &nbsp;Bubble size = total goals.</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Rivalry (El Clásico)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Non-rivalry</div>
+      </div>
+      <div class="canvas-wrap" style="height:310px">
+        <canvas id="scatterChart"></canvas>
+      </div>
+    </div>
+
+    <!-- ② Combined Engagement Ranking Bar -->
+    <div class="chart-panel">
+      <div class="chart-title">Combined Engagement Ranking</div>
+      <div class="chart-subtitle">Sorted descending by composite score · Amber = rivalry match</div>
+      <div class="canvas-wrap" style="height:360px">
+        <canvas id="rankingBar"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ PAGE 2 — FAN SENTIMENT ════════════════════════ -->
+<div class="page" id="p2">
+  <div class="page-header">
+    <div class="page-title">Fan Sentiment</div>
+    <div class="page-subtitle">VADER compound scores across 93,298 linked comments &nbsp;·&nbsp; Positive: score > 0.05 &nbsp;·&nbsp; Negative: score &lt; −0.05 &nbsp;·&nbsp; Neutral: between</div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-grid-2">
+    <div class="kpi-card">
+      <div class="kpi-label">Mean Sentiment Score</div>
+      <div class="kpi-value positive">+0.132</div>
+      <div class="kpi-sub">Weighted by comment volume per match &nbsp;·&nbsp; Mildly positive overall</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Sentiment Net Score</div>
+      <div class="kpi-value positive">+0.200</div>
+      <div class="kpi-sub">( Positive − Negative ) ÷ Total comments</div>
+    </div>
+  </div>
+
+  <!-- Line + Stacked Bar -->
+  <div class="chart-grid-equal">
+
+    <!-- ③ Sentiment over time -->
+    <div class="chart-panel">
+      <div class="chart-title">Mean sentiment over time</div>
+      <div class="chart-subtitle">By match date · Dashed line at 0 (VADER neutral boundary) · Amber points = El Clásico</div>
+      <div class="canvas-wrap" style="height:240px">
+        <canvas id="sentimentLine"></canvas>
+      </div>
+    </div>
+
+    <!-- ④ Sentiment mix per match -->
+    <div class="chart-panel">
+      <div class="chart-title">Sentiment mix per match</div>
+      <div class="chart-subtitle">100% stacked · Sorted by total comment volume (descending)</div>
+      <div class="canvas-wrap" style="height:240px">
+        <canvas id="sentimentStack"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ⑤ Subreddit comparison -->
+  <div class="chart-full">
+    <div class="chart-panel">
+      <div class="chart-title">Subreddit comparison — Volume vs Tone</div>
+      <div class="chart-subtitle">r/barca vs r/realmadrid · Comment volume (bars, left axis) × mean VADER sentiment (line, right axis) · Higher volume ≠ more positive tone</div>
+      <div class="canvas-wrap" style="height:200px">
+        <canvas id="subredditChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════ FOOTER ════════════════════════════════ -->
+<div class="footer">
+  FanSphere AI &nbsp;·&nbsp; La Liga 2020/21 &nbsp;·&nbsp; n = 10 matches, 93,298 linked comments
+</div>
+
+
+<!-- ══════════════════════════════ JAVASCRIPT ══════════════════════════════ -->
+<script>
+'use strict';
+
+// ─── RAW DATA (derived from pipeline outputs) ─────────────────────────────────
+const MATCHES = [
+  { id:3773585, label:'Barcelona vs Real Madrid',       shortLabel:'Barca vs RMadrid',    date:'2020-10-24', hs:1,  as:3,  goals:4, rivalry:true,  combined:0.563, football:0.444, fans:0.681, comments:14866, pos:0.467, neu:0.244, neg:0.289, avgSent:0.1169 },
+  { id:3773497, label:'Real Madrid vs Barcelona',       shortLabel:'RMadrid vs Barca',    date:'2021-04-10', hs:2,  as:1,  goals:3, rivalry:true,  combined:0.360, football:0.111, fans:0.609, comments:17089, pos:0.460, neu:0.259, neg:0.281, avgSent:0.1152 },
+  { id:3773661, label:'Barcelona vs Getafe',            shortLabel:'Barca vs Getafe',     date:'2021-04-22', hs:5,  as:2,  goals:7, rivalry:false, combined:0.397, football:0.333, fans:0.460, comments: 9104, pos:0.471, neu:0.235, neg:0.294, avgSent:0.1194 },
+  { id:3773597, label:'Real Sociedad vs Barcelona',     shortLabel:'RSociedad vs Barca',  date:'2021-03-21', hs:1,  as:6,  goals:7, rivalry:false, combined:0.690, football:1.000, fans:0.380, comments: 7224, pos:0.528, neu:0.256, neg:0.217, avgSent:0.2067 },
+  { id:3773477, label:'Barcelona vs Real Betis',        shortLabel:'Barca vs RBetis',     date:'2020-11-07', hs:5,  as:2,  goals:7, rivalry:false, combined:0.636, football:1.000, fans:0.272, comments: 6888, pos:0.465, neu:0.248, neg:0.287, avgSent:0.1192 },
+  { id:3773387, label:'Levante UD vs Barcelona',        shortLabel:'Levante vs Barca',    date:'2021-05-11', hs:3,  as:3,  goals:6, rivalry:false, combined:0.583, football:0.667, fans:0.500, comments:11383, pos:0.466, neu:0.236, neg:0.298, avgSent:0.1110 },
+  { id:3773526, label:'Barcelona vs Deportivo Alavés',  shortLabel:'Barca vs Alavés',     date:'2021-02-13', hs:5,  as:1,  goals:6, rivalry:false, combined:0.419, football:0.667, fans:0.172, comments: 5986, pos:0.499, neu:0.263, neg:0.238, avgSent:0.1740 },
+  { id:3773631, label:'Real Betis vs Barcelona',        shortLabel:'RBetis vs Barca',     date:'2021-02-07', hs:2,  as:3,  goals:5, rivalry:false, combined:0.136, football:0.000, fans:0.272, comments: 6466, pos:0.486, neu:0.263, neg:0.251, avgSent:0.1570 },
+  { id:3773695, label:'Valencia vs Barcelona',          shortLabel:'Valencia vs Barca',   date:'2021-05-02', hs:2,  as:3,  goals:5, rivalry:false, combined:0.338, football:0.333, fans:0.343, comments: 7008, pos:0.456, neu:0.238, neg:0.305, avgSent:0.1014 },
+  { id:3773369, label:'Barcelona vs Huesca',            shortLabel:'Barca vs Huesca',     date:'2021-03-15', hs:4,  as:1,  goals:5, rivalry:false, combined:0.307, football:0.333, fans:0.281, comments: 7284, pos:0.492, neu:0.257, neg:0.251, avgSent:0.1588 },
+];
+
+const SUBREDDITS = [
+  { name: 'r/barca',        count: 80150, avgSent: 0.1344 },
+  { name: 'r/realmadrid',   count: 13148, avgSent: 0.1160 },
+];
+
+// ─── CHART.JS GLOBAL DEFAULTS ────────────────────────────────────────────────
+Chart.defaults.color          = '#9CA3AF';
+Chart.defaults.borderColor    = '#2D3548';
+Chart.defaults.font.family    = "'Segoe UI', -apple-system, sans-serif";
+Chart.defaults.font.size      = 11;
+
+// ─── PAGE SWITCH ─────────────────────────────────────────────────────────────
+let p2Init = false;
+
+function switchPage(el, id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'p2' && !p2Init) { buildPage2(); p2Init = true; }
+}
+
+// ═══════════════════════════════ PAGE 1 CHARTS ════════════════════════════════
+
+// ① Engagement Divergence Scatter ─────────────────────────────────────────────
+const scatterRivalry = MATCHES
+  .filter(m => m.rivalry)
+  .map(m => ({ x: m.football, y: m.fans, r: 8 + m.goals * 2.5, label: m.label, goals: m.goals, combined: m.combined }));
+
+const scatterNormal = MATCHES
+  .filter(m => !m.rivalry)
+  .map(m => ({ x: m.football, y: m.fans, r: 6 + m.goals * 2.2, label: m.label, goals: m.goals, combined: m.combined }));
+
+new Chart(document.getElementById('scatterChart'), {
+  type: 'bubble',
+  data: {
+    datasets: [
+      {
+        label: 'El Clásico (rivalry)',
+        data: scatterRivalry,
+        backgroundColor: 'rgba(245,158,11,0.70)',
+        borderColor: '#F59E0B',
+        borderWidth: 2,
+      },
+      {
+        label: 'Non-rivalry',
+        data: scatterNormal,
+        backgroundColor: 'rgba(59,130,246,0.50)',
+        borderColor: '#3B82F6',
+        borderWidth: 1.5,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        min: 0, max: 1,
+        title: {
+          display: true,
+          text: 'Football Engagement Score (normalised)',
+          color: '#9CA3AF',
+          font: { size: 10 }
+        },
+        grid: { color: '#2D3548' },
+        ticks: { color: '#9CA3AF', stepSize: 0.2 }
+      },
+      y: {
+        min: 0, max: 1,
+        title: {
+          display: true,
+          text: 'Fan Engagement Score (normalised)',
+          color: '#9CA3AF',
+          font: { size: 10 }
+        },
+        grid: { color: '#2D3548' },
+        ticks: { color: '#9CA3AF', stepSize: 0.2 }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      datalabels: { display: false },
+      tooltip: {
+        backgroundColor: '#20263A',
+        borderColor: '#3B82F6',
+        borderWidth: 1,
+        titleColor: '#F9FAFB',
+        bodyColor: '#9CA3AF',
+        padding: 10,
+        callbacks: {
+          label: ctx => {
+            const d = ctx.raw;
+            return [
+              `  ${d.label}`,
+              `  Football: ${d.x.toFixed(3)}  ·  Fan: ${d.y.toFixed(3)}`,
+              `  Goals: ${d.goals}  ·  Combined: ${d.combined.toFixed(3)}`
+            ];
+          }
+        }
+      },
+      annotation: {
+        annotations: {
+          // y = x diagonal reference line
+          diagonal: {
+            type: 'line',
+            xMin: 0, xMax: 1,
+            yMin: 0, yMax: 1,
+            borderColor: 'rgba(156,163,175,0.35)',
+            borderWidth: 1,
+            borderDash: [6, 4],
+          },
+          // El Clásico annotation label (Barcelona vs Real Madrid point)
+          clasico: {
+            type: 'label',
+            xValue: 0.444,
+            yValue: 0.681,
+            xAdjust:  72,
+            yAdjust: -20,
+            content: ['El Clásico ★'],
+            color: '#F59E0B',
+            font: { size: 10, weight: '700' },
+            backgroundColor: 'rgba(32,38,58,0.92)',
+            padding: { x: 7, y: 4 },
+            borderRadius: 4,
+          },
+          // Diagonal label
+          diagonalLabel: {
+            type: 'label',
+            xValue: 0.85,
+            yValue: 0.80,
+            content: ['y = x'],
+            color: 'rgba(156,163,175,0.55)',
+            font: { size: 9 },
+            backgroundColor: 'transparent',
+          }
+        }
+      }
+    }
+  }
+});
+
+
+// ② Combined Engagement Ranking Bar ──────────────────────────────────────────
+const ranked = [...MATCHES].sort((a, b) => b.combined - a.combined);
+
+new Chart(document.getElementById('rankingBar'), {
+  type: 'bar',
+  data: {
+    labels: ranked.map(m => m.shortLabel),
+    datasets: [{
+      label: 'Combined Score',
+      data: ranked.map(m => m.combined),
+      backgroundColor: ranked.map(m =>
+        m.rivalry ? 'rgba(245,158,11,0.72)' : 'rgba(59,130,246,0.65)'
+      ),
+      borderColor: ranked.map(m => m.rivalry ? '#F59E0B' : '#3B82F6'),
+      borderWidth: 1.5,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        min: 0, max: 0.80,
+        grid: { color: '#2D3548' },
+        ticks: { color: '#9CA3AF', font: { size: 10 } }
+      },
+      y: {
+        grid: { display: false },
+        ticks: { color: '#9CA3AF', font: { size: 10 } }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#20263A',
+        borderColor: '#3B82F6',
+        borderWidth: 1,
+        callbacks: {
+          title: items => ranked[items[0].dataIndex].label,
+          label: ctx => ` Combined: ${ctx.raw.toFixed(3)}`
+        }
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'end',
+        offset: 4,
+        color: '#9CA3AF',
+        font: { size: 9 },
+        formatter: v => v.toFixed(3),
+        clamp: true,
+      }
+    }
+  },
+  plugins: [ChartDataLabels]
+});
+
+
+// ═══════════════════════════════ PAGE 2 CHARTS ════════════════════════════════
+
+function buildPage2() {
+
+  // ③ Sentiment over time (line chart) ──────────────────────────────────────
+  const byDate = [...MATCHES].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  new Chart(document.getElementById('sentimentLine'), {
+    type: 'line',
+    data: {
+      labels: byDate.map(m => m.date.slice(5)), // MM-DD
+      datasets: [{
+        label: 'Mean Sentiment',
+        data: byDate.map(m => m.avgSent),
+        borderColor: '#22C55E',
+        backgroundColor: 'rgba(34,197,94,0.10)',
+        borderWidth: 2,
+        pointRadius: byDate.map(m => 5),
+        pointBackgroundColor: byDate.map(m => m.rivalry ? '#F59E0B' : '#22C55E'),
+        pointBorderColor:     byDate.map(m => m.rivalry ? '#F59E0B' : '#22C55E'),
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: { color: '#2D3548' },
+          ticks: { color: '#9CA3AF', font: { size: 9 }, maxRotation: 45 }
+        },
+        y: {
+          min: 0,
+          max: 0.28,
+          grid: { color: '#2D3548' },
+          ticks: {
+            color: '#9CA3AF',
+            font: { size: 9 },
+            callback: v => v.toFixed(2)
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        datalabels: { display: false },
+        tooltip: {
+          backgroundColor: '#20263A',
+          borderColor: '#22C55E',
+          borderWidth: 1,
+          titleColor: '#F9FAFB',
+          bodyColor: '#9CA3AF',
+          callbacks: {
+            title: items => byDate[items[0].dataIndex].label,
+            label: ctx => ` VADER: +${ctx.raw.toFixed(4)}`
+          }
+        },
+        annotation: {
+          annotations: {
+            zeroLine: {
+              type: 'line',
+              yMin: 0, yMax: 0,
+              borderColor: 'rgba(239,68,68,0.40)',
+              borderWidth: 1,
+              borderDash: [5, 4],
+            }
+          }
+        }
+      }
+    }
+  });
+
+
+  // ④ 100% Stacked Sentiment Mix ────────────────────────────────────────────
+  const byVolume = [...MATCHES].sort((a, b) => b.comments - a.comments);
+
+  new Chart(document.getElementById('sentimentStack'), {
+    type: 'bar',
+    data: {
+      labels: byVolume.map(m => m.shortLabel),
+      datasets: [
+        {
+          label: 'Positive',
+          data: byVolume.map(m => +(m.pos * 100).toFixed(1)),
+          backgroundColor: 'rgba(34,197,94,0.72)',
+          borderWidth: 0,
+        },
+        {
+          label: 'Neutral',
+          data: byVolume.map(m => +(m.neu * 100).toFixed(1)),
+          backgroundColor: 'rgba(107,114,128,0.65)',
+          borderWidth: 0,
+        },
+        {
+          label: 'Negative',
+          data: byVolume.map(m => +(m.neg * 100).toFixed(1)),
+          backgroundColor: 'rgba(239,68,68,0.72)',
+          borderWidth: 0,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true,
+          min: 0, max: 100,
+          grid: { color: '#2D3548' },
+          ticks: {
+            color: '#9CA3AF',
+            font: { size: 9 },
+            callback: v => v + '%'
+          }
+        },
+        y: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { color: '#9CA3AF', font: { size: 9 } }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#9CA3AF',
+            font: { size: 10 },
+            boxWidth: 10,
+            padding: 10
+          }
+        },
+        datalabels: { display: false },
+        tooltip: {
+          backgroundColor: '#20263A',
+          borderColor: '#2D3548',
+          borderWidth: 1,
+          callbacks: {
+            title: items => byVolume[items[0].dataIndex].label,
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`
+          }
+        }
+      }
+    }
+  });
+
+
+  // ⑤ Subreddit Dual-Axis (bar volume + line sentiment) ─────────────────────
+  new Chart(document.getElementById('subredditChart'), {
+    type: 'bar',
+    data: {
+      labels: SUBREDDITS.map(s => s.name),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Comment Count',
+          data: SUBREDDITS.map(s => s.count),
+          backgroundColor: ['rgba(59,130,246,0.68)', 'rgba(245,158,11,0.68)'],
+          borderColor:     ['#3B82F6', '#F59E0B'],
+          borderWidth: 1.5,
+          borderRadius: 5,
+          yAxisID: 'yLeft',
+        },
+        {
+          type: 'line',
+          label: 'Mean Sentiment',
+          data: SUBREDDITS.map(s => s.avgSent),
+          borderColor: '#22C55E',
+          backgroundColor: 'rgba(34,197,94,0.15)',
+          borderWidth: 2.5,
+          pointRadius: 8,
+          pointBackgroundColor: '#22C55E',
+          pointBorderColor: '#20263A',
+          pointBorderWidth: 2,
+          tension: 0,
+          fill: false,
+          yAxisID: 'yRight',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        yLeft: {
+          type: 'linear',
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Comment Count',
+            color: '#9CA3AF',
+            font: { size: 10 }
+          },
+          grid: { color: '#2D3548' },
+          ticks: {
+            color: '#9CA3AF',
+            font: { size: 10 },
+            callback: v => (v / 1000).toFixed(0) + 'k'
+          }
+        },
+        yRight: {
+          type: 'linear',
+          position: 'right',
+          min: 0,
+          max: 0.20,
+          title: {
+            display: true,
+            text: 'Mean VADER Sentiment',
+            color: '#9CA3AF',
+            font: { size: 10 }
+          },
+          grid: { display: false },
+          ticks: { color: '#9CA3AF', font: { size: 10 } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#9CA3AF', font: { size: 12, weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#9CA3AF',
+            font: { size: 10 },
+            boxWidth: 10,
+            padding: 10
+          }
+        },
+        datalabels: { display: false },
+        tooltip: {
+          backgroundColor: '#20263A',
+          borderColor: '#2D3548',
+          borderWidth: 1,
+          titleColor: '#F9FAFB',
+          bodyColor: '#9CA3AF',
+        }
+      }
+    }
+  });
+
+} // end buildPage2()
+</script>
+</body>
+</html>

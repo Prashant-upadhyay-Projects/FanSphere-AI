@@ -1,0 +1,11 @@
+match_id,home_team,away_team,competition,season,match_date,home_score,away_score,is_rivalry,total_goals
+3773585,Barcelona,Real Madrid,La Liga,2020/2021,2020-10-24,1,3,True,4
+3773497,Real Madrid,Barcelona,La Liga,2020/2021,2021-04-10,2,1,True,3
+3773661,Barcelona,Getafe,La Liga,2020/2021,2021-04-22,5,2,False,7
+3773597,Real Sociedad,Barcelona,La Liga,2020/2021,2021-03-21,1,6,False,7
+3773477,Barcelona,Real Betis,La Liga,2020/2021,2020-11-07,5,2,False,7
+3773387,Levante UD,Barcelona,La Liga,2020/2021,2021-05-11,3,3,False,6
+3773526,Barcelona,Deportivo Alavés,La Liga,2020/2021,2021-02-13,5,1,False,6
+3773631,Real Betis,Barcelona,La Liga,2020/2021,2021-02-07,2,3,False,5
+3773695,Valencia,Barcelona,La Liga,2020/2021,2021-05-02,2,3,False,5
+3773369,Barcelona,Huesca,La Liga,2020/2021,2021-03-15,4,1,False,5
