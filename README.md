@@ -3,13 +3,13 @@
 > Football audience intelligence system — 907K fan comments cross-referenced against 10 La Liga fixtures to separate engagement volume from engagement intensity.
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Evidence.dev](https://img.shields.io/badge/Evidence.dev-0.36-E11D5C)
+![Evidence.dev](https://img.shields.io/badge/Evidence.dev-40.x-E11D5C)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.x-FFF000)
 ![License](https://img.shields.io/badge/license-MIT-22C55E)
 
 FanSphere AI investigates how football matches move fan communities. It joins on-pitch event data (StatsBomb) with subreddit conversation (Reddit), scores sentiment at comment level, segments authors into behavioural cohorts, and produces a composite engagement signal that decouples raw volume from emotional intensity.
 
-**Headline finding:** El Clásico generates the highest raw comment volume in the dataset and ranks #7 of 10 on combined engagement. Volume and excitement are orthogonal signals.
+**Headline finding:** weighting fan reaction over goal count lifts El Clásico to **#1** on combined engagement. But raw volume still isn't the same as rank — the single highest-volume fixture in the dataset (17,089 comments) sits at #5, dragged down by a low scoreline. Volume, fan affect, and on-pitch excitement are three distinct axes.
 
 ---
 
@@ -35,17 +35,17 @@ flowchart TB
         E2["load_reddit_archive.py\nJSONL → parquet"]
         L1["link_comments_to_matches.py\nconfidence scored joins"]
         N1["sentiment.py\nVADER · NLTK"]
-        N2["generate_metrics.py\nKMeans k=3 · author cohorts"]
-        SC["engagement.py\n0.5 × football + 0.5 × fan"]
+        N2["generate_fan_segments.py\nKMeans k=4 + RobustScaler"]
+        SC["engagement.py\n0.35 × football + 0.65 × fan"]
     end
 
     subgraph STORE[" Storage "]
-        DB[("fansphere.duckdb\n8 tables · parquet cache")]
+        DB[("fansphere.duckdb\n9 tables · parquet cache")]
     end
 
     subgraph VIZ[" Intelligence interface "]
         direction LR
-        V1["Evidence.dev\n5-page interactive dashboard"]
+        V1["Evidence.dev\n6-page interactive dashboard"]
         V2["fansphere_5pages_preview.html\nstandalone static render"]
     end
 
@@ -81,8 +81,9 @@ flowchart TB
 | `load_reddit_archive.py` | Pushshift JSONL → parquet (907K comments) |
 | `link_comments_to_matches.py` | Confidence scored comment-to-fixture joins (threshold 0.40) |
 | `sentiment.py` | VADER compound scoring per comment |
-| `generate_metrics.py` | KMeans k=3 author segmentation (silhouette 0.40) |
-| `engagement.py` | Composite score: `0.5 × football_norm + 0.5 × fan_blend` |
+| `generate_fan_segments.py` | KMeans k=4 + RobustScaler author cohorts (silhouette 0.64) |
+| `engagement.py` | Composite score: `0.35 × football_norm + 0.65 × fan_blend` |
+| `build_dashboard_db.py` | Loads `outputs/` into the Evidence DuckDB (reproducible) |
 
 Core logic lives in [`src/engagement.py`](src/engagement.py) and [`src/link_comments_to_matches.py`](src/link_comments_to_matches.py).
 
@@ -92,12 +93,27 @@ Core logic lives in [`src/engagement.py`](src/engagement.py) and [`src/link_comm
 
 | Fixture | Goals | Combined | Fan Score |
 |---|---|---|---|
-| Real Sociedad 1–6 Barcelona | 7 | **0.690** | 0.380 |
-| Barcelona 5–2 Real Betis | 7 | **0.636** | 0.272 |
-| Levante 3–3 Barcelona | 6 | **0.583** | 0.500 |
-| El Clásico — Barcelona 1–3 Real Madrid | 4 | 0.563 | **0.681** |
+| El Clásico — Barcelona 1–3 Real Madrid | 4 | **0.598** | **0.681** |
+| Real Sociedad 1–6 Barcelona | 7 | 0.597 | 0.380 |
+| Levante 3–3 Barcelona | 6 | 0.558 | 0.500 |
+| Barcelona 5–2 Real Betis | 7 | 0.527 | 0.272 |
+| El Clásico — Real Madrid 2–1 Barcelona | 3 | 0.435 | **0.609** |
 
-El Clásico drew 17,089 comments — the highest raw volume in the dataset — yet ranks 4th overall. Rivalry volatility saturates the fan signal while goal count anchors the combined score. The divergence between those two axes is precisely the signal sponsors and broadcasters care about: a low-scoring Clásico still outperforms a seven-goal non-rivalry fixture on fan-side affect.
+The October El Clásico ranks **#1** — it carries the highest fan-affect score in the dataset (0.681), and the fan-biased blend rewards that. The April Clásico drew the **most comments of any fixture (17,089)** yet ranks #5: a 3-goal match scores low on the on-pitch axis, and combined engagement still respects both signals. The volume-vs-intensity divergence that motivated the project is now read on the dashboard's divergence chart rather than buried in the headline ranking.
+
+---
+
+## v1.1 — Tuned by AutoResearch
+
+Two modelling choices in v1.0 were unvalidated defaults: `k=3` clustering and a `0.5 / 0.5` engagement blend. v1.1 replaced them with results from an autonomous experiment loop — a Karpathy-style ratchet that proposes one change, tests it against a label-grounded metric, keeps only strict improvements, and logs everything. Nine experiments ran; two changes shipped, one was a deliberate null result.
+
+| Decision | v1.0 | v1.1 | Result |
+|---|---|---|---|
+| Author clustering | KMeans k=3, StandardScaler | KMeans k=4, **RobustScaler** | silhouette **0.40 → 0.64**; surfaced an "Ultra" power-user cohort |
+| Engagement blend | 0.5 / 0.5 (football / fan) | **0.35 / 0.65** | El Clásico **#4 → #1**; rivalry-vs-rest separation (AUC) **0.50 → 0.81** |
+| Sentiment model | VADER, mean | *unchanged* | All 6 VADER/TextBlob × aggregation combos tested; hit a ceiling — sentiment proven *not* the bottleneck |
+
+The metric was grounded in labels already in the data (`is_rivalry`, `total_goals`), so no hand-labelling was required. The loop, its frozen evaluator, a Pro-plan usage guardrail, a graduation kill-switch, and the per-experiment audit trail live in [`Autoresearch_fansphere/`](Autoresearch_fansphere/) (start with its `RESEARCH_REPORT.md`). The dashboard's "What's New" page carries the same receipts.
 
 ---
 
@@ -125,15 +141,17 @@ pip install -r requirements.txt
 # Stages 1 and 2 — StatsBomb pipeline
 python main.py --skip-reddit --no-persist
 
-# Stage 3 — sentiment and segmentation (requires Reddit JSONL archives)
+# Stage 3 — sentiment, segmentation, engagement (v1.1 configs live in the code)
 python -m src.load_reddit_archive --input data/raw/reddit --output data/interim/reddit_comments.parquet
 jupyter nbconvert --to notebook --execute --inplace notebooks/stage3_audience_sentiment.ipynb
+python -m src.generate_fan_segments          # author cohorts (k=4 + RobustScaler)
+python -m src.build_dashboard_db             # load outputs/ into the dashboard DuckDB
 
 # Intelligence interface
 cd dashboard/app && npm install && npm run sources && npm run dev
 ```
 
-No Reddit data? **[Open the live dashboard preview →](https://htmlpreview.github.io/?https://github.com/Prashant-upadhyay-Projects/FanSphere-AI/blob/master/dashboard/fansphere_5pages_preview.html)** — standalone static render of all five pages, no install required.
+No Reddit data? **[Open the live dashboard preview →](https://htmlpreview.github.io/?https://github.com/Prashant-upadhyay-Projects/FanSphere-AI/blob/master/dashboard/fansphere_5pages_preview.html)** — standalone static render, no install required.
 
 Copy `.env.example` → `.env` and populate credentials before running the pipeline.
 
@@ -147,11 +165,11 @@ Copy `.env.example` → `.env` and populate credentials before running the pipel
 
 ## Future Direction
 
-1. Replace VADER with a specialist football-domain transformer model
-2. Expand across multiple seasons and competitions (UCL, Premier League)
-3. Live ingestion via Reddit API with fixture-aware temporal windowing
-4. Probabilistic match state modelling driven by xG timelines
-5. Cohort stability analysis across consecutive seasons to measure fan drift
+1. Replace VADER with a football-domain transformer — v1.1 tested VADER vs TextBlob and three aggregation schemes and hit a ceiling, so the next gain has to come from a domain-tuned model, not the lexicon.
+2. Expand across multiple seasons and competitions (UCL, Premier League) — the current 10-fixture window makes statistical claims descriptive, not population-level.
+3. Live ingestion via Reddit API with fixture-aware temporal windowing.
+4. Probabilistic match state modelling driven by xG timelines.
+5. Cohort stability analysis across consecutive seasons to measure fan drift.
 
 ---
 
