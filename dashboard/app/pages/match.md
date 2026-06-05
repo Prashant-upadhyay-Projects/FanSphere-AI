@@ -24,7 +24,7 @@ full_width: true
 </div>
 
 <div class="page-intro">
-Each match becomes a story when you align comments to kickoff. <strong>The goals tell you what happened. The comment curve tells you what mattered.</strong> Pick a fixture below — the rest of the page re-renders for that match.
+Each match becomes a story when you align comments to kickoff. <strong>The goals tell you what happened. The comment curve tells you what mattered.</strong> Pick a fixture below, and the rest of the page re-renders for that match.
 </div>
 
 <!-- MATCH PICKER =============================================== -->
@@ -100,7 +100,7 @@ where m.match_id = '${inputs.match_pick.value}'
 
 <!-- ======================================================= -->
 
-## Goals as they happened — with the xG behind each one
+## Goals as they happened, with the xG behind each one
 
 Every goal is one bar; bar height = xG (expected-goals quality). A lucky long shot reads short. A tap in from a textbook move reads tall.
 
@@ -160,7 +160,7 @@ order by 1
   yAxisTitle="Comment volume"
   yFmt='#,##0'
   chartAreaHeight=240
-  colorPalette={['#22D3EE']}
+  colorPalette={['#E11D5C']}
 />
 
 <LineChart
@@ -178,7 +178,7 @@ order by 1
 
 <!-- ======================================================= -->
 
-## Sentiment mix — positive, neutral, negative
+## Sentiment mix: positive, neutral, negative
 
 The composition of the conversation. A skewed positive match feels different to one where positive and negative were equal even with high average.
 
@@ -213,7 +213,7 @@ order by case sentiment_label
 
 <!-- ======================================================= -->
 
-## The receipts — top fan quotes from this match
+## The receipts: top fan quotes from this match
 
 Highest scored comments on each side, after kickoff. These are the lines the fanbase upvoted; click through if you want to verify on Reddit later.
 
@@ -264,7 +264,7 @@ limit 5
 </div>
 
 <style>
-  /* Widen the page — overrides Evidence default max-width */
+  /* Widen the page (overrides Evidence default max-width) */
   .content-container,
   .content,
   main {
@@ -320,22 +320,22 @@ limit 5
     color: var(--grey-600);
     margin: 0 0 24px 0;
     padding: 14px 18px;
-    border-left: 3px solid #22D3EE;
-    background: rgba(34,211,238,0.04);
+    border-left: 3px solid #E11D5C;
+    background: rgba(225,29,92,0.04);
     border-radius: 4px;
   }
   .page-intro strong { color: var(--grey-800); }
 
-  /* Section headings (H2) — cyan, descriptive, with subtle underline */
+  /* Section headings (H2): crimson, descriptive, with subtle underline */
   h2 {
-    color: #22D3EE !important;
+    color: #E11D5C !important;
     font-size: 20px !important;
     font-weight: 600 !important;
     letter-spacing: -0.01em;
     margin-top: 40px !important;
     margin-bottom: 8px !important;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(34,211,238,0.20);
+    border-bottom: 1px solid rgba(225,29,92,0.20);
   }
   h3 { margin-top: 24px; margin-bottom: 8px; }
   .quote-h {
@@ -348,8 +348,8 @@ limit 5
   .quote-h.bad  { color: #EF4444; }
 
   @media (prefers-color-scheme: light) {
-    h2 { color: #0891B2 !important; border-bottom-color: rgba(8,145,178,0.25); }
-    .page-intro { border-left-color: #0891B2; background: rgba(8,145,178,0.04); }
+    h2 { color: #A50044 !important; border-bottom-color: rgba(165,0,68,0.25); }
+    .page-intro { border-left-color: #A50044; background: rgba(165,0,68,0.04); }
   }
 
   .page-footer {

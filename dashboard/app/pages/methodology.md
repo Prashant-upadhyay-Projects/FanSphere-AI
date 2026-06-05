@@ -12,7 +12,7 @@ full_width: true
     <div class="hero-logo">M5</div>
     <div>
       <div class="hero-title">Methodology &amp; Receipts</div>
-      <div class="hero-sub">Where every number on the other four pages comes from — pipeline, models, caveats</div>
+      <div class="hero-sub">Where every number on the other four pages comes from: pipeline, models, caveats</div>
     </div>
   </div>
   <div class="hero-meta">
@@ -25,7 +25,7 @@ full_width: true
 </div>
 
 <div class="page-intro">
-If you can't audit the pipeline you can't trust the dashboard. <strong>Every transformation, model choice and caveat lives here</strong> — read it once, then the other pages stand on their own.
+If you can't audit the pipeline you can't trust the dashboard. <strong>Every transformation, model choice and caveat lives here.</strong> Read it once, then the other pages stand on their own.
 </div>
 
 <!-- PIPELINE =================================================== -->
@@ -38,7 +38,7 @@ Five stages, two open datasets, two models. Output is parquet/CSV consumed direc
   <div class="stage">
     <div class="stage-num">1</div>
     <div class="stage-name">Match data</div>
-    <div class="stage-body">StatsBomb open-data — La Liga 2020/21 fixtures, scores, goal events with xG.</div>
+    <div class="stage-body">StatsBomb open-data: La Liga 2020/21 fixtures, scores, goal events with xG.</div>
     <div class="stage-meta">10 matches · 53 goals</div>
   </div>
   <div class="arrow">→</div>
@@ -59,21 +59,21 @@ Five stages, two open datasets, two models. Output is parquet/CSV consumed direc
   <div class="stage">
     <div class="stage-num">4</div>
     <div class="stage-name">Author segments</div>
-    <div class="stage-body">KMeans k=3 on standardised behavioural features for authors with ≥3 comments.</div>
-    <div class="stage-meta">3,628 authors · silhouette 0.40</div>
+    <div class="stage-body">KMeans k=4 + RobustScaler on behavioural features for authors with ≥3 comments.</div>
+    <div class="stage-meta">3,628 authors · silhouette 0.64</div>
   </div>
   <div class="arrow">→</div>
   <div class="stage">
     <div class="stage-num">5</div>
     <div class="stage-name">Engagement score</div>
-    <div class="stage-body">Composite = ½ × on-pitch (normalised) + ½ × fan-side (4-factor blend).</div>
+    <div class="stage-body">Composite = 0.35 × on-pitch (normalised) + 0.65 × fan-side (4-factor blend).</div>
     <div class="stage-meta">10 matches ranked</div>
   </div>
 </div>
 
 <!-- ======================================================= -->
 
-## Data sources — what's in DuckDB
+## Data sources: what's in DuckDB
 
 Every Evidence query on the other four pages reads from one of these tables. All loaded into `sources/fansphere/fansphere.duckdb`.
 
@@ -100,7 +100,7 @@ select * from (values
 
 ## Comment-to-match linking confidence
 
-Each comment gets a confidence score for *which match it belongs to* based on subreddit, time-from-kickoff, and team-name mentions. The histogram below is what we ended up with — most comments are 0.6 confidence (sub + time match) with a long tail of high-confidence matches.
+Each comment gets a confidence score for *which match it belongs to* based on subreddit, time-from-kickoff, and team-name mentions. The histogram below is what we ended up with. Most comments are 0.6 confidence (sub + time match), with a long tail of high-confidence matches.
 
 ```sql link_confidence
 select
@@ -120,7 +120,7 @@ order by 1
   yFmt='#,##0'
   yScale=log
   chartAreaHeight=240
-  colorPalette={['#22D3EE']}
+  colorPalette={['#E11D5C']}
   labels=true
   labelFmt='#,##0'
 />
@@ -140,22 +140,22 @@ The two ML touch-points and the deterministic scoring on top.
   <div class="model-card">
     <div class="model-tag">SENTIMENT</div>
     <div class="model-name">VADER (NLTK)</div>
-    <div class="model-blurb">Lexicon + grammatical rules tuned for social-media text. Output is a compound score in [−1, +1]. We label as positive when compound ≥ +0.05, negative when ≤ −0.05, neutral otherwise — VADER's documented defaults.</div>
-    <div class="model-why"><b>Why VADER:</b> built for short, informal text with emoji and slang. No training data required — appropriate when the corpus is small and the task is well-defined.</div>
+    <div class="model-blurb">Lexicon + grammatical rules tuned for social-media text. Output is a compound score in [−1, +1]. We label as positive when compound ≥ +0.05, negative when ≤ −0.05, neutral otherwise, per VADER's documented defaults.</div>
+    <div class="model-why"><b>Why VADER:</b> built for short, informal text with emoji and slang. No training data required, which suits a small corpus and a well-defined task.</div>
   </div>
 
   <div class="model-card">
     <div class="model-tag">CLUSTERING</div>
-    <div class="model-name">KMeans (k=3, scikit-learn)</div>
-    <div class="model-blurb">Features per author (standardised): <code>comment_frequency</code>, <code>matches_covered</code>, <code>avg_sentiment</code>, <code>sentiment_volatility</code>, <code>positive_ratio</code>. <code>random_state=42</code> for reproducibility. Filtered to authors with ≥3 comments.</div>
-    <div class="model-why"><b>Why k=3:</b> elbow method gave a clean knee at 3, silhouette 0.40 is acceptable for behavioural-segmentation work. Three clusters are also interpretable as personas ([[the-tribes]]).</div>
+    <div class="model-name">KMeans (k=4, scikit-learn)</div>
+    <div class="model-blurb">Features per author (RobustScaler-scaled): <code>comment_frequency</code>, <code>sentiment_volatility</code>, <code>engagement_activity</code>. <code>random_state=42</code> for reproducibility. Filtered to authors with ≥3 comments.</div>
+    <div class="model-why"><b>Why k=4 + RobustScaler:</b> chosen via the AutoResearch experiment loop. RobustScaler (median/IQR) stops power-user upvote outliers from dominating; k=4 surfaces a distinct Ultra tier. Together they lifted silhouette 0.40 → 0.64 over the old k=3 + StandardScaler, while staying interpretable as personas ([[the-tribes]]).</div>
   </div>
 
   <div class="model-card">
     <div class="model-tag">COMPOSITE</div>
     <div class="model-name">Engagement Score</div>
-    <div class="model-blurb">Combined = 0.5 × football_norm + 0.5 × fan_engagement.<br/>fan_engagement = 0.40·volume + 0.25·affect + 0.20·volatility + 0.15·reach (each normalised 0-1).<br/>football_norm = total_goals normalised across the 10-match window.</div>
-    <div class="model-why"><b>Why these weights:</b> volume dominates raw conversation intensity; affect captures whether the conversation was loud or angry; volatility rewards back-and-forth; reach rewards cross-subreddit. The 50/50 fan-vs-football split is by design — see Page 1's diagonal chart.</div>
+    <div class="model-blurb">Combined = 0.35 × football_norm + 0.65 × fan_engagement.<br/>fan_engagement = 0.45·volume + 0.20·affect + 0.25·volatility + 0.10·reach (each normalised 0-1).<br/>football_norm = Stage-2 engagement (goals + tempo) normalised across the 10-match window.</div>
+    <div class="model-why"><b>Why these weights:</b> volume captures raw conversation intensity; affect whether the mood ran strong; volatility rewards back-and-forth; reach rewards cross-subreddit. The fan-biased 0.35/0.65 split was selected by the AutoResearch loop. It surfaces rivalry fixtures the old 50/50 split buried (see Page 1).</div>
   </div>
 
 </div>
@@ -170,19 +170,19 @@ The model is honest about its limits.
   <div class="caveat">
     <div class="caveat-num">01</div>
     <div class="caveat-body">
-      <b>Single-team bias.</b> Both subreddits in the comment corpus (<code>r/barca</code>, <code>r/realmadrid</code>) skew Barcelona-side. Of the 10 fixtures, 8 involve Barcelona. Conclusions generalise to *those fanbases* — not to neutrals or rival-team supporters of the other 8 La Liga teams.
+      <b>Single-team bias.</b> Both subreddits in the comment corpus (<code>r/barca</code>, <code>r/realmadrid</code>) skew Barcelona-side. Of the 10 fixtures, 8 involve Barcelona. Conclusions generalise to *those fanbases*, not to neutrals or rival-team supporters of the other 8 La Liga teams.
     </div>
   </div>
   <div class="caveat">
     <div class="caveat-num">02</div>
     <div class="caveat-body">
-      <b>VADER is rule-based, not deep.</b> It can't read sarcasm, language switches (Spanish ↔ English ↔ Catalan), or local idioms. A more recent transformer model would score differently — VADER was chosen for transparency and the small corpus size.
+      <b>VADER is rule-based, not deep.</b> It can't read sarcasm, language switches (Spanish ↔ English ↔ Catalan), or local idioms. A more recent transformer model would score differently. VADER was chosen for transparency and the small corpus size.
     </div>
   </div>
   <div class="caveat">
     <div class="caveat-num">03</div>
     <div class="caveat-body">
-      <b>Linking confidence is fuzzy.</b> 91,250 of 93,298 comments sit at 0.6 confidence — they match on subreddit + time but not necessarily on team mention. False positives are possible; the directional signal is still defensible.
+      <b>Linking confidence is fuzzy.</b> 91,250 of 93,298 comments sit at 0.6 confidence. They match on subreddit + time but not necessarily on team mention. False positives are possible; the directional signal is still defensible.
     </div>
   </div>
   <div class="caveat">
@@ -243,8 +243,8 @@ If `npm install` complains about peer deps, drop `node_modules` + `package-lock.
   .page-intro {
     font-size: 14px; color: var(--grey-600);
     margin: 0 0 24px 0; padding: 14px 18px;
-    border-left: 3px solid #22D3EE;
-    background: rgba(34,211,238,0.04);
+    border-left: 3px solid #E11D5C;
+    background: rgba(225,29,92,0.04);
     border-radius: 4px;
   }
   .page-intro strong { color: var(--grey-800); }
@@ -292,7 +292,7 @@ If `npm install` complains about peer deps, drop `node_modules` + `package-lock.
   }
   .model-tag {
     display: inline-block; width: fit-content;
-    background: rgba(34,211,238,0.15); color: #0891B2;
+    background: rgba(225,29,92,0.15); color: #E11D5C;
     padding: 2px 10px; border-radius: 4px;
     font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
   }
@@ -306,13 +306,13 @@ If `npm install` complains about peer deps, drop `node_modules` + `package-lock.
   .caveat {
     display: flex; gap: 14px; align-items: flex-start;
     padding: 14px 16px;
-    background: rgba(245,158,11,0.04);
-    border-left: 3px solid #F59E0B;
+    background: rgba(225,29,92,0.04);
+    border-left: 3px solid #E11D5C;
     border-radius: 4px;
   }
   .caveat-num {
     font-family: ui-monospace, monospace;
-    font-size: 11px; color: #F59E0B;
+    font-size: 11px; color: #E11D5C;
     font-weight: 700;
   }
   .caveat-body { font-size: 13px; color: var(--grey-700); line-height: 1.55; flex: 1; }
@@ -320,16 +320,16 @@ If `npm install` complains about peer deps, drop `node_modules` + `package-lock.
   .caveat-body code { background: var(--grey-100); padding: 1px 5px; border-radius: 3px; }
 
   h2 {
-    color: #22D3EE !important;
+    color: #E11D5C !important;
     font-size: 20px !important; font-weight: 600 !important;
     letter-spacing: -0.01em;
     margin-top: 40px !important; margin-bottom: 8px !important;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(34,211,238,0.20);
+    border-bottom: 1px solid rgba(225,29,92,0.20);
   }
   @media (prefers-color-scheme: light) {
-    h2 { color: #0891B2 !important; border-bottom-color: rgba(8,145,178,0.25); }
-    .page-intro { border-left-color: #0891B2; background: rgba(8,145,178,0.04); }
+    h2 { color: #A50044 !important; border-bottom-color: rgba(165,0,68,0.25); }
+    .page-intro { border-left-color: #A50044; background: rgba(165,0,68,0.04); }
   }
 
   .page-footer {

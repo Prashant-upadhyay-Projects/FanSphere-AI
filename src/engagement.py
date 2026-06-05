@@ -183,6 +183,8 @@ def join_with_stage2(
     stage2_engagement: pd.DataFrame,
     *,
     stage2_score_col: str = "engagement_score",
+    football_weight: float = 0.35,
+    fan_weight: float = 0.65,
 ) -> pd.DataFrame:
     """
     Combine fan-side (stage 3) and football-side (stage 2) engagement signals.
@@ -195,7 +197,8 @@ def join_with_stage2(
     Output includes:
       engagement_score_football_raw   — original Stage 2 score (0–30 scale)
       engagement_score_football_norm  — min-max normalized to [0, 1]
-      engagement_score_combined       — 0.5 * norm + 0.5 * fans, clipped to [0, 1]
+      engagement_score_combined       — football_weight*norm + fan_weight*fans,
+                                         clipped to [0, 1] (default fan-biased 0.35/0.65)
     """
     s2 = stage2_engagement.copy()
     if stage2_score_col not in s2.columns:
@@ -245,10 +248,13 @@ def join_with_stage2(
     merged["engagement_score_fans"] = merged["engagement_score_fans"].fillna(0.0)
     merged["fan_comment_count"] = merged["fan_comment_count"].fillna(0).astype(int)
 
-    # Combined score on matching [0, 1] scales — true 50/50 blend.
+    # Combined score on matching [0, 1] scales.
+    # Fan-biased 0.35/0.65 default from the AutoResearch loop (H3.1): weighting the
+    # fan signal higher surfaces rivalry fixtures (e.g. El Clasico) that the old
+    # 50/50 split buried mid-table on this fan-intelligence platform.
     merged["engagement_score_combined"] = (
-        0.5 * merged["engagement_score_football_norm"].fillna(0.0)
-        + 0.5 * merged["engagement_score_fans"]
+        football_weight * merged["engagement_score_football_norm"].fillna(0.0)
+        + fan_weight * merged["engagement_score_fans"]
     ).clip(0.0, 1.0)
     return merged
 

@@ -18,7 +18,7 @@ full_width: true
   <div class="hero-meta">
     <span class="chip chip-crimson">10 fixtures</span>
     <span class="chip">907K comments analysed</span>
-    <span class="chip">VADER sentiment + KMeans (k=3)</span>
+    <span class="chip">VADER sentiment + KMeans (k=4)</span>
     <span class="chip">3,628 authors clustered</span>
   </div>
 </div>
@@ -98,7 +98,7 @@ where rank = 1
 ## Where fan attention and on-pitch excitement diverge
 
 A point above the diagonal means fans engaged *more* than the football
-itself warranted — and vice versa. Bubble size = total goals in the match.
+itself warranted, and vice versa. Bubble size = total goals in the match.
 **This single chart is the El Clásico paradox.**
 
 ```sql divergence
@@ -122,7 +122,7 @@ where 1=1
   y=fans
   size=total_goals
   series=category
-  colorPalette={['#E11D5C','#94A3B8']}
+  seriesColors={{'Rivalry (El Clásico)': '#E11D5C', 'Non-rivalry': '#94A3B8'}}
   xMin=0 xMax=1.05
   yMin=0 yMax=1.0
   xAxisTitle="On-pitch engagement (normalised)"
@@ -142,16 +142,16 @@ where 1=1
 
 <Alert status="info">
   <strong>How to read this:</strong> The diagonal is "fans matched the football."
-  Both El Clásicos sit far above the diagonal — fans went off even though the on-pitch excitement was mid-pack.
+  Both El Clásicos sit far above the diagonal. Fans went off even though the on-pitch excitement was mid-pack.
   Real Sociedad 1–6 Barcelona sits far to the right: 7 goals, only moderate fan reaction.
-  <em>Fans don't just react to goals — they react to stakes.</em>
+  <em>Fans don't just react to goals. They react to stakes.</em>
 </Alert>
 
 <!-- ======================================================= -->
 
 ## Combined engagement ranking
 
-The composite score = ½ × on-pitch (normalised) + ½ × fan-side.
+The composite score = 0.35 × on-pitch (normalised) + 0.65 × fan-side.
 Crimson bars mark rivalry fixtures.
 
 ```sql ranking_bar
@@ -169,7 +169,7 @@ order by engagement_score_combined desc
   x=match_label
   y=score
   series=category
-  colorPalette={['#E11D5C','#94A3B8']}
+  seriesColors={{Rivalry: '#E11D5C', 'Non-rivalry': '#94A3B8'}}
   swapXY=true
   sort=false
   yAxisTitle="Combined engagement score [0, 1]"
@@ -223,19 +223,20 @@ order by rank
 
 ## The story this dashboard tells
 
-**El Clásico generates the most raw fan volume — but doesn't win on
-combined score.** The Apr 2021 Clásico saw 17,089 comments (the
-highest in the dataset), yet ranks #7 of 10 on combined engagement
-because it had only 3 goals.
+**El Clásico now tops the combined ranking.** Shifting the blend toward
+the fan side (0.35 on-pitch / 0.65 fan-side) lifts the Oct 2020 Clásico
+to #1. Its charged, high-volume fan reaction is exactly what a
+fan-intelligence platform should surface. The Apr 2021 Clásico (17,089
+comments, the most in the dataset) rises to #5 of 10.
 
-**The biggest goal-fests rank highest.** Real Sociedad 1–6 Barcelona
-(7 goals) and Barcelona 5–2 Real Betis (7 goals) take the top two
-slots — the composite score weights on-pitch excitement equally with
-fan reaction, and 7 goals normalises to a perfect football score.
+**Goal-fests still rank well, but no longer dominate.** Real Sociedad
+1–6 Barcelona (7 goals) sits at #2 and Barcelona 5–2 Real Betis at #4:
+on-pitch excitement still counts, it just no longer outweighs a charged
+fanbase the way the old 50/50 split did.
 
 **Fan volatility tells you what the average doesn't.** Fans argue
 during rivalry games even when their team wins. The sentiment volatility
-analysis on Page 4 (Sentiment Timeline) shows this clearly — non-rivalry
+analysis on Page 4 (Sentiment Timeline) shows this clearly. Non-rivalry
 wins have the calmest fanbases, regardless of margin.
 
 <div class="page-footer">
@@ -243,7 +244,7 @@ wins have the calmest fanbases, regardless of margin.
 </div>
 
 <style>
-  /* Widen the page — overrides Evidence default max-width */
+  /* Widen the page (overrides Evidence default max-width) */
   .content-container,
   .content,
   main {
@@ -293,20 +294,20 @@ wins have the calmest fanbases, regardless of margin.
     color: var(--primary);
   }
 
-  /* Section headings (H2) — cyan, descriptive, with subtle underline */
+  /* Section headings (H2): crimson, descriptive, with subtle underline */
   h2 {
-    color: #22D3EE !important;
+    color: #E11D5C !important;
     font-size: 20px !important;
     font-weight: 600 !important;
     letter-spacing: -0.01em;
     margin-top: 40px !important;
     margin-bottom: 8px !important;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(34,211,238,0.20);
+    border-bottom: 1px solid rgba(225,29,92,0.20);
   }
   /* Optional darker-cyan variant if too bright in light mode */
   @media (prefers-color-scheme: light) {
-    h2 { color: #0891B2 !important; border-bottom-color: rgba(8,145,178,0.25); }
+    h2 { color: #A50044 !important; border-bottom-color: rgba(165,0,68,0.25); }
   }
 
   .page-footer {

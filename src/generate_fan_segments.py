@@ -6,16 +6,22 @@ Phase A2 enrichment: cluster fans into behaviour-driven segments.
 
 Reads `outputs/stage3_comments_enriched.parquet` (produced by
 `enrich_comments_sentiment.py`), aggregates per-author behaviour
-features, and runs KMeans (k=3) to label each author as one of
-Casual / Tactical / Highly Engaged.
+features, and runs KMeans (k=4) to label each author as one of
+Casual / Tactical / Highly Engaged / Ultra.
 
-Why these three labels?
------------------------
-The label is *assigned*, not learned. KMeans gives us three numbered
+Why these four labels?
+----------------------
+The label is *assigned*, not learned. KMeans gives us four numbered
 clusters; we relabel them by mean engagement so the mapping is stable
-across runs. The interpretive names come from the brief — they're the
-sports-analytics archetypes recruiters expect to see for this kind of
-audience-intelligence project.
+across runs (lowest-engagement cluster -> 'Casual Fan', highest -> 'Ultra Fan').
+The names describe an engagement-intensity ladder, from the casual mass up to a
+small elite of power users.
+
+k=4 + RobustScaler were chosen via the AutoResearch experiment loop
+(see `Autoresearch_fansphere/`): RobustScaler (median/IQR) stops heavy-upvote
+power users from distorting the feature space, and k=4 surfaces the elite
+'Ultra' tier. Together they lifted the silhouette score 0.40 -> 0.64 vs the
+previous k=3 + StandardScaler baseline.
 
 Features (per author):
   comment_frequency     — total comments by this author across all matches
@@ -42,7 +48,7 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -51,7 +57,10 @@ OUTPUT_PATH = PROJECT_ROOT / "outputs" / "fan_segments.csv"
 
 MIN_COMMENTS = 3
 EXCLUDED_AUTHORS = {"[deleted]", "AutoModerator", "", None}
-SEGMENT_LABELS = ("Casual Fan", "Tactical Fan", "Highly Engaged Fan")
+# Ordered low -> high engagement. KMeans clusters are relabelled by mean
+# engagement_activity, so slot 0 is always the lowest-engagement cohort.
+SEGMENT_LABELS = ("Casual Fan", "Tactical Fan", "Highly Engaged Fan", "Ultra Fan")
+N_CLUSTERS = len(SEGMENT_LABELS)
 RANDOM_STATE = 42
 
 logging.basicConfig(
@@ -96,21 +105,23 @@ def main() -> None:
     logger.info("Qualified authors (>=%d comments): %d / %d",
                 MIN_COMMENTS, len(qualified), len(grouped))
 
-    if len(qualified) < 3:
+    if len(qualified) < N_CLUSTERS:
         raise RuntimeError(
-            f"Only {len(qualified)} qualified authors — KMeans k=3 not viable."
+            f"Only {len(qualified)} qualified authors — KMeans k={N_CLUSTERS} not viable."
         )
 
     # Clustering ------------------------------------------------------------
+    # k=4 + RobustScaler (AutoResearch H1.1/H1.2). RobustScaler resists the
+    # heavy right-skew of engagement_activity (power-user upvote counts).
     feature_cols = [
         "comment_frequency",
         "sentiment_volatility",
         "engagement_activity",
     ]
     X = qualified[feature_cols].to_numpy()
-    X_scaled = StandardScaler().fit_transform(X)
+    X_scaled = RobustScaler().fit_transform(X)
 
-    model = KMeans(n_clusters=3, n_init=10, random_state=RANDOM_STATE)
+    model = KMeans(n_clusters=N_CLUSTERS, n_init=10, random_state=RANDOM_STATE)
     raw_labels = model.fit_predict(X_scaled)
     sil = silhouette_score(X_scaled, raw_labels)
     logger.info("Silhouette score: %.4f", sil)
@@ -118,7 +129,8 @@ def main() -> None:
     qualified["_raw_cluster"] = raw_labels
 
     # Stable label assignment: order clusters by mean engagement_activity
-    # so 'Casual Fan' is always the lowest-engagement cluster.
+    # so 'Casual Fan' is always the lowest-engagement cluster and 'Ultra Fan'
+    # the highest.
     order = (
         qualified.groupby("_raw_cluster")["engagement_activity"]
         .mean()

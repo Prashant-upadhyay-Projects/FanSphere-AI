@@ -24,3 +24,6 @@ tqdm==4.67.1
 zstandard==0.23.0
 PyYAML==6.0.2
 pyarrow==18.0.0
+
+# --- Dashboard build -----------------------------------------------------
+duckdb==1.5.3              # rebuilds the Evidence DuckDB (src/build_dashboard_db.py)

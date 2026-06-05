@@ -12,7 +12,7 @@ full_width: true
     <div class="hero-logo">FS</div>
     <div>
       <div class="hero-title">Fan Segmentation</div>
-      <div class="hero-sub">3,628 authors · KMeans (k=3) on 5 behavioural features · silhouette 0.40</div>
+      <div class="hero-sub">3,628 authors · KMeans (k=4) + RobustScaler · silhouette 0.64</div>
     </div>
   </div>
   <div class="hero-meta">
@@ -25,7 +25,7 @@ full_width: true
 </div>
 
 <div class="page-intro">
-Most fanbase studies treat the audience as one block. Here, every Reddit author is a vector — and three groups fall out cleanly: <strong>Casuals who drop in, Tacticals who argue, and a tiny Highly-Engaged core that posts hundreds of times</strong>. The clusters explain why headline averages hide everything that matters.
+Most fanbase studies treat the audience as one block. Here, every Reddit author is a vector, and four tiers fall out cleanly: <strong>Casuals who drop in, Tacticals who argue, a Highly-Engaged core, and a tiny Ultra elite that posts hundreds of times</strong>. The clusters explain why headline averages hide everything that matters.
 </div>
 
 <!-- PERSONA CARDS ============================================== -->
@@ -57,7 +57,11 @@ select * from ${segment_profile} where segment = 'Tactical Fan'
 select * from ${segment_profile} where segment = 'Highly Engaged Fan'
 ```
 
-<Grid cols=3>
+```sql segment_ultra
+select * from ${segment_profile} where segment = 'Ultra Fan'
+```
+
+<Grid cols=4>
 
   <div class="persona">
     <div class="persona-tag" style="background:rgba(148,163,184,0.15); color:#94A3B8;">CASUAL</div>
@@ -67,18 +71,18 @@ select * from ${segment_profile} where segment = 'Highly Engaged Fan'
     <div class="persona-row"><span>Matches covered</span><b><Value data={segment_casual} column=avg_matches /></b></div>
     <div class="persona-row"><span>Positive ratio</span><b><Value data={segment_casual} column=avg_pos_ratio /></b></div>
     <div class="persona-row"><span>Sentiment volatility</span><b><Value data={segment_casual} column=avg_volatility /></b></div>
-    <div class="persona-blurb">Drop in, react, log off. <strong>Lower volatility, slightly more positive</strong> — they show up for big moments and skip the rest.</div>
+    <div class="persona-blurb">Drop in, react, log off. <strong>Lower volatility, slightly more positive.</strong> They show up for big moments and skip the rest.</div>
   </div>
 
   <div class="persona">
-    <div class="persona-tag" style="background:rgba(251,191,36,0.15); color:#FBBF24;">TACTICAL</div>
+    <div class="persona-tag" style="background:rgba(188,83,120,0.15); color:#BC5378;">TACTICAL</div>
     <div class="persona-name">The Tactical Fan</div>
     <div class="persona-count"><BigValue data={segment_tactical} value=authors fmt='#,##0' /></div>
     <div class="persona-row"><span>Avg comments per author</span><b><Value data={segment_tactical} column=avg_comments /></b></div>
     <div class="persona-row"><span>Matches covered</span><b><Value data={segment_tactical} column=avg_matches /></b></div>
     <div class="persona-row"><span>Positive ratio</span><b><Value data={segment_tactical} column=avg_pos_ratio /></b></div>
     <div class="persona-row"><span>Sentiment volatility</span><b><Value data={segment_tactical} column=avg_volatility /></b></div>
-    <div class="persona-blurb">The argumentative middle. <strong>Higher volatility, even split positive vs negative</strong> — they're the ones writing about Koeman's formation at half-time.</div>
+    <div class="persona-blurb">The argumentative middle. <strong>Higher volatility, even split positive vs negative.</strong> They're the ones writing about Koeman's formation at half-time.</div>
   </div>
 
   <div class="persona">
@@ -89,16 +93,27 @@ select * from ${segment_profile} where segment = 'Highly Engaged Fan'
     <div class="persona-row"><span>Matches covered</span><b><Value data={segment_highly} column=avg_matches /></b></div>
     <div class="persona-row"><span>Positive ratio</span><b><Value data={segment_highly} column=avg_pos_ratio /></b></div>
     <div class="persona-row"><span>Sentiment volatility</span><b><Value data={segment_highly} column=avg_volatility /></b></div>
-    <div class="persona-blurb">3% of authors, ~30% of the volume. <strong>Cover almost every match, post hundreds of times</strong>. Any product targeting "superfans" lives here.</div>
+    <div class="persona-blurb"><strong>~190 comments each across ~8 matches.</strong> The dedicated core that turns up for almost everything.</div>
+  </div>
+
+  <div class="persona">
+    <div class="persona-tag" style="background:rgba(255,107,157,0.15); color:#FF6B9D;">ULTRA</div>
+    <div class="persona-name">The Ultra</div>
+    <div class="persona-count"><BigValue data={segment_ultra} value=authors fmt='#,##0' /></div>
+    <div class="persona-row"><span>Avg comments per author</span><b><Value data={segment_ultra} column=avg_comments /></b></div>
+    <div class="persona-row"><span>Matches covered</span><b><Value data={segment_ultra} column=avg_matches /></b></div>
+    <div class="persona-row"><span>Positive ratio</span><b><Value data={segment_ultra} column=avg_pos_ratio /></b></div>
+    <div class="persona-row"><span>Sentiment volatility</span><b><Value data={segment_ultra} column=avg_volatility /></b></div>
+    <div class="persona-blurb">Just 19 authors posting <strong>~500 comments each (~3,500 upvotes)</strong>. The true superfans. Any fan panel or ambassador programme starts here.</div>
   </div>
 
 </Grid>
 
 <!-- ======================================================= -->
 
-## How the three segments stack up by behaviour
+## How the four segments stack up by behaviour
 
-Same five features the clustering used — now read across, not within, so you can see how different the segments actually are.
+Same five features the clustering used, now read across instead of within, so you can see how different the segments actually are.
 
 ```sql segment_metrics_long
 with base as (
@@ -125,22 +140,22 @@ order by metric
   y=value
   series=segment
   type=grouped
-  colorPalette={['#94A3B8','#E11D5C','#FBBF24']}
-  yAxisTitle="Value (mixed units — read each metric on its own scale)"
+  colorPalette={['#94A3B8','#E11D5C','#BC5378','#FF6B9D']}
+  yAxisTitle="Value (mixed units, read each metric on its own scale)"
   xAxisTitle=""
   yFmt='0.00'
   chartAreaHeight=360
 />
 
 <Alert status="info">
-  <strong>What jumps out:</strong> Hardcore fans post <strong>~11× more</strong> than Tacticals and <strong>~27× more</strong> than Casuals. They also cover <strong>~3× more matches</strong>. Their positive ratio sits right between the other two — they're loud, not louder-positive.
+  <strong>What jumps out:</strong> the Ultra tier posts <strong>~50× more</strong> than Casuals and <strong>~7× more</strong> than Tacticals. The top two tiers (Highly Engaged + Ultra) are ~3% of authors but a hugely disproportionate share of the volume. Their positive ratio sits mid-pack, so they're loud, not louder-positive.
 </Alert>
 
 <!-- ======================================================= -->
 
-## Every author plotted — coverage vs intensity
+## Every author plotted: coverage vs intensity
 
-X = how many matches they showed up to. Y = total comment activity. Colour = segment. The clusters separate visually too — they're not arbitrary KMeans noise.
+X = how many matches they showed up to. Y = total comment activity. Colour = segment. The clusters separate visually too, not arbitrary KMeans noise.
 
 ```sql author_scatter
 select
@@ -152,7 +167,8 @@ select
     case
       when segment = 'Casual Fan'         then 1
       when segment = 'Tactical Fan'       then 2
-      else 3
+      when segment = 'Highly Engaged Fan' then 3
+      else 4
     end as segment_order
 from fansphere.fan_segments
 order by segment_order, engagement_activity desc
@@ -164,7 +180,7 @@ order by segment_order, engagement_activity desc
   y=engagement_activity
   size=comment_frequency
   series=segment
-  colorPalette={['#94A3B8','#FBBF24','#E11D5C']}
+  colorPalette={['#94A3B8','#BC5378','#E11D5C','#FF6B9D']}
   xAxisTitle="Matches covered (of 10)"
   yAxisTitle="Engagement activity (total)"
   yScale=log
@@ -173,7 +189,7 @@ order by segment_order, engagement_activity desc
 />
 
 <Alert status="info">
-  <strong>Log y-axis used deliberately:</strong> the Hardcore cluster activity numbers (up to ~10,000) would compress the other two clusters into a single line on a linear scale. Log lets you see the structure inside each cluster.
+  <strong>Log y-axis used deliberately:</strong> the Ultra/Hardcore activity numbers (up to ~10,000) would compress the lower-intensity clusters into a single line on a linear scale. Log lets you see the structure inside each cluster.
 </Alert>
 
 <!-- ======================================================= -->
@@ -213,7 +229,7 @@ limit 15
 </DataTable>
 
 <div class="page-footer">
-  <span>Clustering: KMeans k=3 on standardised features (sklearn) · silhouette 0.40 · features explained on Page 5 (Methodology)</span>
+  <span>Clustering: KMeans k=4 + RobustScaler (sklearn) · silhouette 0.64 · features explained on Page 5 (Methodology)</span>
 </div>
 
 <style>
@@ -253,16 +269,16 @@ limit 15
   .page-intro {
     font-size: 14px; color: var(--grey-600);
     margin: 0 0 24px 0; padding: 14px 18px;
-    border-left: 3px solid #22D3EE;
-    background: rgba(34,211,238,0.04);
+    border-left: 3px solid #E11D5C;
+    background: rgba(225,29,92,0.04);
     border-radius: 4px;
   }
   .page-intro strong { color: var(--grey-800); }
 
   /* Persona cards */
   .persona {
-    background: var(--grey-50);
-    border: 1px solid var(--grey-200);
+    background: linear-gradient(135deg, rgba(225,29,92,0.10) 0%, rgba(225,29,92,0.02) 70%);
+    border: 1px solid rgba(225,29,92,0.22);
     border-radius: 12px;
     padding: 20px 22px;
     display: flex; flex-direction: column; gap: 8px;
@@ -292,18 +308,18 @@ limit 15
   }
   .persona-blurb strong { color: var(--grey-800); }
 
-  /* H2 — cyan chapter headings */
+  /* H2 crimson chapter headings */
   h2 {
-    color: #22D3EE !important;
+    color: #E11D5C !important;
     font-size: 20px !important; font-weight: 600 !important;
     letter-spacing: -0.01em;
     margin-top: 40px !important; margin-bottom: 8px !important;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(34,211,238,0.20);
+    border-bottom: 1px solid rgba(225,29,92,0.20);
   }
   @media (prefers-color-scheme: light) {
-    h2 { color: #0891B2 !important; border-bottom-color: rgba(8,145,178,0.25); }
-    .page-intro { border-left-color: #0891B2; background: rgba(8,145,178,0.04); }
+    h2 { color: #A50044 !important; border-bottom-color: rgba(165,0,68,0.25); }
+    .page-intro { border-left-color: #A50044; background: rgba(165,0,68,0.04); }
   }
 
   .page-footer {

@@ -1,6 +1,7 @@
 # FanSphere AI — Evidence theme
-# Charcoal canvas + Barça crimson accent for rivalry. Sentiment uses
-# diverging red→amber→green across pages.
+# v1.1 locked palette: "Crimson on Charcoal" (monochrome).
+# Decorative colour = crimson + slate only. Red/green are reserved STRICTLY for
+# sentiment semantics (negative/positive). No amber, violet, cyan, or blue.
 
 appearance:
   default: dark
@@ -10,41 +11,35 @@ theme:
   colorPalettes:
     default:
       light:
-        - "#A50044"
-        - "#60A5FA"
-        - "#7C8DA0"
-        - "#22C55E"
-        - "#F59E0B"
-        - "#EF4444"
-        - "#8B5CF6"
-        - "#06B6D4"
+        - "#A50044"   # crimson
+        - "#7C8DA0"   # slate
+        - "#D17BA0"   # muted crimson
+        - "#475569"   # deep slate
       dark:
-        - "#E11D5C"
-        - "#93C5FD"
-        - "#94A3B8"
-        - "#22C55E"
-        - "#F59E0B"
-        - "#EF4444"
-        - "#A78BFA"
-        - "#22D3EE"
+        - "#E11D5C"   # crimson
+        - "#94A3B8"   # slate
+        - "#FF6B9D"   # bright crimson
+        - "#64748B"   # muted slate
     rivalry:
       light:
-        - "#A50044"
-        - "#7C8DA0"
+        - "#A50044"   # rivalry = crimson
+        - "#7C8DA0"   # non-rivalry = slate
       dark:
         - "#E11D5C"
         - "#94A3B8"
-    segment:
+    segment:          # cohort intensity ramp: Casual → Tactical → Highly Engaged → Ultra
       light:
         - "#7C8DA0"
-        - "#F59E0B"
+        - "#BC5378"
         - "#A50044"
+        - "#E0608C"
       dark:
         - "#94A3B8"
-        - "#FBBF24"
+        - "#BC5378"
         - "#E11D5C"
+        - "#FF6B9D"
   colorScales:
-    sentiment:
+    sentiment:        # semantic only: negative → neutral → positive
       light:
         - "#EF4444"
         - "#F1F5F9"
@@ -53,7 +48,7 @@ theme:
         - "#EF4444"
         - "#1E293B"
         - "#22C55E"
-    engagement:
+    engagement:       # slate → crimson intensity
       light:
         - "#F1F5F9"
         - "#A50044"
@@ -71,24 +66,24 @@ theme:
     primary:
       light: "#A50044"
       dark: "#E11D5C"
-    accent:
-      light: "#F59E0B"
-      dark: "#FBBF24"
+    accent:           # light crimson (was amber)
+      light: "#D17BA0"
+      dark: "#FF6B9D"
     base:
       light: "#FFFFFF"
       dark: "#0E1117"
-    info:
-      light: "#60A5FA"
-      dark: "#93C5FD"
-    positive:
+    info:             # neutral slate (was blue) — keeps info callouts on-palette
+      light: "#7C8DA0"
+      dark: "#94A3B8"
+    positive:         # sentiment semantic
       light: "#16A34A"
       dark: "#22C55E"
-    negative:
+    negative:         # sentiment semantic
       light: "#DC2626"
       dark: "#EF4444"
-    warning:
-      light: "#D97706"
-      dark: "#F59E0B"
+    warning:          # crimson (was amber/brown)
+      light: "#A50044"
+      dark: "#E11D5C"
 
 plugins:
   components:

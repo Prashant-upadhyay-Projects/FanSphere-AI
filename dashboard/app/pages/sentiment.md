@@ -12,7 +12,7 @@ full_width: true
     <div class="hero-logo">ST</div>
     <div>
       <div class="hero-title">Sentiment Timeline</div>
-      <div class="hero-sub">The 2020/21 season as a single mood curve — match by match, with the rivalries called out</div>
+      <div class="hero-sub">The 2020/21 season as a single mood curve, match by match, with the rivalries called out</div>
     </div>
   </div>
   <div class="hero-meta">
@@ -24,7 +24,7 @@ full_width: true
 </div>
 
 <div class="page-intro">
-Average sentiment per match looks calm. <strong>Volatility tells the real story</strong> — rivalry matches see fans argue regardless of result, while comfortable wins produce the quietest fanbases. Both signals plotted below.
+Average sentiment per match looks calm. <strong>Volatility tells the real story.</strong> Rivalry matches see fans argue regardless of result, while comfortable wins produce the quietest fanbases. Both signals plotted below.
 </div>
 
 <!-- KPI ROW ==================================================== -->
@@ -56,7 +56,7 @@ from fansphere.match_sentiment ms
 
 ## Average sentiment, match by match
 
-Above zero = net-positive fanbase that match, below zero = net-negative. Rivalry fixtures are flagged crimson — note how the El Clásicos sit right at the season average, not at the extremes.
+Above zero = net-positive fanbase that match, below zero = net-negative. Rivalry fixtures are flagged crimson. Note how the El Clásicos sit right at the season average, not at the extremes.
 
 ```sql sentiment_timeline
 select
@@ -90,12 +90,12 @@ order by m.match_date
 />
 
 <Alert status="info">
-  <strong>The averages lie a bit:</strong> all 10 matches sit between +0.10 and +0.21 — the fanbase is broadly positive about a Barcelona-focused season. The interesting variance is <em>around</em> that average, which is what the next chart shows.
+  <strong>The averages lie a bit:</strong> all 10 matches sit between +0.10 and +0.21, so the fanbase is broadly positive about a Barcelona-focused season. The interesting variance is <em>around</em> that average, which is what the next chart shows.
 </Alert>
 
 <!-- ======================================================= -->
 
-## Volatility — where the arguments were
+## Volatility: where the arguments were
 
 Volatility = standard deviation of comment sentiment within the match. Higher bars = louder disagreement during play, not after the fact. <strong>This is where rivalries actually show up.</strong>
 
@@ -129,9 +129,9 @@ order by sentiment_volatility desc
 
 <!-- ======================================================= -->
 
-## The mood mix — positive vs negative share, per match
+## The mood mix: positive vs negative share, per match
 
-Stacked view of how the 93K comments split. Even at the volatile matches, the positive share stays around half — the *negative* share is what shifts.
+Stacked view of how the 93K comments split. Even at the volatile matches, the positive share stays around half. The *negative* share is what shifts.
 
 ```sql posneg_long
 with base as (
@@ -174,7 +174,7 @@ select
     rank() over (order by ms.sentiment_volatility desc) as "Rank by volatility",
     m.home_team || ' vs ' || m.away_team             as "Match",
     m.match_date                                      as "Date",
-    case when m.is_rivalry then 'Rivalry' else '—' end as "Type",
+    case when m.is_rivalry then 'Rivalry' else 'League' end as "Type",
     ms.comment_count                                  as "Comments",
     ms.avg_sentiment                                  as "Avg sentiment",
     ms.sentiment_volatility                           as "Volatility",
@@ -231,23 +231,23 @@ order by ms.sentiment_volatility desc
   .page-intro {
     font-size: 14px; color: var(--grey-600);
     margin: 0 0 24px 0; padding: 14px 18px;
-    border-left: 3px solid #22D3EE;
-    background: rgba(34,211,238,0.04);
+    border-left: 3px solid #E11D5C;
+    background: rgba(225,29,92,0.04);
     border-radius: 4px;
   }
   .page-intro strong { color: var(--grey-800); }
 
   h2 {
-    color: #22D3EE !important;
+    color: #E11D5C !important;
     font-size: 20px !important; font-weight: 600 !important;
     letter-spacing: -0.01em;
     margin-top: 40px !important; margin-bottom: 8px !important;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(34,211,238,0.20);
+    border-bottom: 1px solid rgba(225,29,92,0.20);
   }
   @media (prefers-color-scheme: light) {
-    h2 { color: #0891B2 !important; border-bottom-color: rgba(8,145,178,0.25); }
-    .page-intro { border-left-color: #0891B2; background: rgba(8,145,178,0.04); }
+    h2 { color: #A50044 !important; border-bottom-color: rgba(165,0,68,0.25); }
+    .page-intro { border-left-color: #A50044; background: rgba(165,0,68,0.04); }
   }
 
   .page-footer {
