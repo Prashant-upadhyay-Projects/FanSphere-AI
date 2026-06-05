@@ -1,0 +1,51 @@
+{
+  "max_iterations": 5,
+  "iterations_run": 5,
+  "phase": 2,
+  "phase_names": {
+    "1": "clustering",
+    "2": "sentiment",
+    "3": "engagement"
+  },
+  "baselines": {
+    "1": 0.6333,
+    "2": 0.5058,
+    "3": 0.5058
+  },
+  "best_scores": {
+    "1": 0.7719,
+    "2": 0.5791,
+    "3": 0.6835
+  },
+  "best_configs": {
+    "1": "H1.2 k=4 + RobustScaler (silhouette 0.3956->0.6430, composite 0.7719) TARGET MET",
+    "2": "textblob/median (marginal +0.0007)",
+    "3": "H3.1 football 0.35/fan 0.65 (rivalry_auc 0.8125, Clasico #1) TARGET MET"
+  },
+  "completion": {
+    "manual_halt": false,
+    "graduated": true,
+    "targets": {
+      "1": 0.7,
+      "2": 0.575,
+      "3": 0.65
+    },
+    "plateau_patience": 5,
+    "no_improve_streak": {
+      "1": 0,
+      "2": 1,
+      "3": 0
+    },
+    "_note": "Kill switch / graduation. targets = per-phase 'good enough' composite (null disables a phase target; edit to your bar). plateau_patience = consecutive non-improving iterations before a phase is declared exhausted. Project GRADUATES when manual_halt=true, or HALT.flag exists, or every phase with a non-null target has met it or plateaued. Set manual_halt:true (or `touch HALT.flag`) to stop for good. HUMAN edits targets/plateau_patience/manual_halt; AGENT only updates no_improve_streak + graduated."
+  },
+  "usage_guardrail": {
+    "enabled": true,
+    "pause_at_fraction": 0.6,
+    "cap_mode": "rolling_max",
+    "explicit_token_cap": null,
+    "lookback_days": 30,
+    "ccusage_offline": true
+  },
+  "hard_stop": true,
+  "_note": "AGENT: increment iterations_run after EVERY experiment; update best_scores[phase]/best_configs[phase] only on a KEPT result. NEVER edit max_iterations, usage_guardrail, baselines, phase, or phase_names \u2014 those are the human's controls. Phases are scored on different scales, so 'best' is tracked per phase."
+}
