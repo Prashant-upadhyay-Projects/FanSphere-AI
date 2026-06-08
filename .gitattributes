@@ -1,0 +1,8 @@
+# Binary files: no line-ending conversion, no text diff (prevents corruption)
+*.pdf      binary
+*.duckdb   binary
+*.parquet  binary
+*.mp4      binary
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
