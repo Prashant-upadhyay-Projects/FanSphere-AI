@@ -17,6 +17,7 @@ FanSphere AI investigates how football matches move fan communities. It joins on
 
 Direct links to the main parts of the repo:
 
+- 📑 **[Full PDF Report](docs/FanSphere_AI_Report.pdf)** · v1.1 technical report (architecture, methodology, results)
 - 📊 **[Live dashboard preview](https://htmlpreview.github.io/?https://github.com/Prashant-upadhyay-Projects/FanSphere-AI/blob/master/dashboard/fansphere_5pages_preview.html)** · standalone static render of all pages, no install
 - 📈 **[Evidence dashboard source](dashboard/app)** · 6-page interactive dashboard (`.md` + SQL)
 - 🧪 **[AutoResearch framework](Autoresearch_fansphere)** · the autonomous experiment loop that tuned v1.1
