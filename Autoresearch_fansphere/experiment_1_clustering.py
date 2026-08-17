@@ -1,7 +1,7 @@
 """
 EXPERIMENT FILE — PHASE 1: AUTHOR CLUSTERING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Claude Code: You MAY modify anything in this file (one change per iteration).
+Agent: you MAY modify anything in this file (one change per iteration).
 Goal: raise composite_1 = 0.6*silhouette + 0.4*cluster_stability above the
 current best. See program.md → Phase 1 for the hypotheses and their order.
 

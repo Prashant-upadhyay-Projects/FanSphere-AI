@@ -12,7 +12,7 @@ Baselines are **measured per phase** (`evaluate.py --phase N --baseline`) and st
 ---
 
 ## Session Log
-<!-- Agent appends iteration blocks below this line using the template in CLAUDE.md -->
+<!-- Agent appends iteration blocks below this line using the template in AGENT.md -->
 
 ---
 ### Iteration 1 | Phase 1 | KEPT

@@ -1,7 +1,7 @@
 """
 EXPERIMENT FILE — PHASE 3: ENGAGEMENT FORMULA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Claude Code: You MAY modify anything in this file (one change per iteration).
+Agent: you MAY modify anything in this file (one change per iteration).
 Goal: raise composite_eng = 0.5*rivalry_auc + 0.5*rivalry_margin_norm by
 re-weighting the engagement formula. See program.md → Phase 3.
 

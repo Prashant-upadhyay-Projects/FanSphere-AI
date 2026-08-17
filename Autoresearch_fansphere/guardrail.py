@@ -6,14 +6,14 @@ FROZEN FILE: the agent must NOT modify this file.
 
 Caps the agent at <pause_at_fraction> (default 0.60) of your 5-hour usage
 window, measured against your own recent peak block (rolling max) via ccusage -
-the same 5h blocks Claude Code bills against.
+the same 5h blocks the agent's usage is billed against.
 
   • exit 0  → safe to proceed (prints headroom)
   • exit 2  → PAUSE: writes PAUSED.flag with the window reset time, then stops
   • exit 1  → guardrail could not run (ccusage/network/parse problem)
 
 Honest caveats:
-  • "60% of plan" is a proxy. Anthropic doesn't expose your Pro 5h cap to
+  • "60% of plan" is a proxy. The provider doesn't expose your plan's 5h cap to
     scripts, so the denominator is YOUR rolling-max block (or an explicit
     override in budget.json). totalTokens counts cheap cache-read tokens
     equally - fine for a self-consistent ratio, not a literal billing %.

@@ -32,11 +32,11 @@ rolling-max 5h block). Either one stops the session.
 
 ```bash
 cd FanSphere-AI/Autoresearch_fansphere
-claude
+# launch your coding agent here
 ```
-Claude Code reads `CLAUDE.md` automatically and runs the loop: it checks the guardrail,
-measures the phase baseline if needed, then tries one hypothesis at a time, keeping only
-improvements. Walk away. Read `results_log.md` when it stops.
+Point an autonomous coding agent at this folder. It reads `AGENT.md` and runs the loop: it
+checks the guardrail, measures the phase baseline if needed, then tries one hypothesis at a
+time, keeping only improvements. Walk away. Read `results_log.md` when it stops.
 
 To sanity-check the plumbing yourself first:
 ```bash
@@ -49,8 +49,8 @@ python evaluate.py --phase 3 --baseline   # shows each Clásico's current rank
 
 ## The usage guardrail (`guardrail.py`)
 
-- Reads the same 5-hour blocks Claude Code bills against (via ccusage) and pauses at
-  **60%** of your **rolling-max** block (your own recent peak). Config: `budget.json →
+- Reads the same 5-hour blocks the agent's usage is billed against (via ccusage) and pauses
+  at **60%** of your **rolling-max** block (your own recent peak). Config: `budget.json →
   usage_guardrail`.
 - **Exit 0** = proceed (prints headroom). **Exit 2** = pause: it writes `PAUSED.flag` with
   the window's reset time and the agent stops. **Exit 1** = couldn't run ccusage (not
@@ -60,7 +60,7 @@ python evaluate.py --phase 3 --baseline   # shows each Clásico's current rank
   `guardrail.py` run auto-clears the stale flag once the window has reset.
 - **Tuning:** change `pause_at_fraction` (e.g. 0.5 for stricter). For a fixed budget
   instead of rolling-max, set `cap_mode:"explicit"` and `explicit_token_cap: <tokens>`.
-- **Honest caveat:** Anthropic doesn't expose your Pro 5h cap to scripts, so this is a
+- **Honest caveat:** the provider doesn't expose your plan's 5h cap to scripts, so this is a
   proxy against your own usage, not a literal billing percentage.
 
 ---
@@ -74,7 +74,7 @@ deterministic judge, run at STEP 0 right after the guardrail.
 - **Manual kill switch:** set `completion.manual_halt: true` in `budget.json`, **or** just
   `touch HALT.flag` in this folder. At the next iteration boundary the agent writes
   `GRADUATION.md` and stops for good. (It's not an instant interrupt — to stop *right now*,
-  close the Claude Code session; the flag stops it cleanly at the next check.)
+  close the agent session; the flag stops it cleanly at the next check.)
 - **Automatic graduation:** the project graduates when every phase with a non-null
   `completion.targets[phase]` has either met its target composite or **plateaued**
   (`no_improve_streak >= plateau_patience`). Seeded targets are `{1: 0.70, 2: 0.62, 3: 0.65}`
@@ -113,7 +113,7 @@ Re-run the pipeline, regenerate `outputs/`, and refresh the dashboard.
 ## File roles
 | File | Role | Who edits |
 |---|---|---|
-| `CLAUDE.md` | Agent instructions | You (never agent) |
+| `AGENT.md` | Agent instructions | You (never agent) |
 | `program.md` | Hypotheses + metric spec | You (never agent) |
 | `evaluate.py` | Frozen evaluator (reads `outputs/`, calls `src/`) | You only (if it errors) |
 | `guardrail.py` | Frozen usage cap | You only |

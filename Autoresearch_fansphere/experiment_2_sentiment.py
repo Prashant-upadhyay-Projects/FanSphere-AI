@@ -1,7 +1,7 @@
 """
 EXPERIMENT FILE — PHASE 2: SENTIMENT MODEL & AGGREGATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Claude Code: You MAY modify anything in this file (one change per iteration).
+Agent: you MAY modify anything in this file (one change per iteration).
 Goal: raise composite_eng = 0.5*rivalry_auc + 0.5*rivalry_margin_norm by
 improving sentiment quality. See program.md → Phase 2.
 

@@ -45,7 +45,7 @@ cat budget.json
 | What | Rule |
 |---|---|
 | **You MAY edit** | only `experiment_1_clustering.py` · `experiment_2_sentiment.py` · `experiment_3_engagement.py` |
-| **FROZEN** (never edit) | `evaluate.py` · `guardrail.py` · `completion.py` · `program.md` · `CLAUDE.md` · everything in `../src/` and `../outputs/` |
+| **FROZEN** (never edit) | `evaluate.py` · `guardrail.py` · `completion.py` · `program.md` · `AGENT.md` · everything in `../src/` and `../outputs/` |
 | **budget.json** | increment `iterations_run`; update `best_scores[phase]` / `best_configs[phase]` on a KEPT; update `completion.no_improve_streak[phase]` each iteration; set `completion.graduated=true` only when writing GRADUATION.md. NEVER touch `max_iterations`, `usage_guardrail`, `baselines`, `phase`, `phase_names`, or `completion.targets` / `plateau_patience` / `manual_halt`. |
 | **One change per iteration** | change exactly ONE config value (or one small block). Never refactor. |
 | **Revert via snapshot** | the experiment files are untracked, so `git checkout` will NOT restore them. Use the `.snapshots/` copy (see loop). |

@@ -34,7 +34,7 @@ the engine and swap three files.
 | `guardrail.py` | Pure ccusage usage cap — knows nothing about the project. |
 | `completion.py` | Pure budget.json logic — targets / plateau / kill switch. |
 | `budget.json` (schema) | Same keys; just reset values (see checklist). |
-| `CLAUDE.md` (skeleton) | The loop + stop tiers + snapshot revert. Edit only the phase table and project name. |
+| `AGENT.md` (skeleton) | The loop + stop tiers + snapshot revert. Edit only the phase table and project name. |
 | `results_log.md`, `.snapshots/` | Log + revert mechanics. |
 
 ## Swap PER PROJECT (the only real work — 3 files)
@@ -68,7 +68,7 @@ Ask, in order:
 
 ## Spin-up checklist for "Project N+1"
 
-1. Copy this folder; rename. Update the project name + phase table in `CLAUDE.md`, and the title
+1. Copy this folder; rename. Update the project name + phase table in `AGENT.md`, and the title
    in `program.md`.
 2. Write the new `evaluate.py` (metric + `--baseline`). Smoke-test: a dumb/degenerate config must
    score near the floor.
@@ -79,7 +79,7 @@ Ask, in order:
 5. `pip install` any new metric deps. Run `python evaluate.py --phase 1 --baseline` and confirm a
    sane number.
 6. Run `python guardrail.py` and `python completion.py` once — both should exit 0.
-7. `cd` in, launch `claude`, walk away.
+7. `cd` in, launch the agent, walk away.
 
 ---
 

@@ -1,6 +1,6 @@
 # FanSphere AutoResearch — Detailed Research Report
 
-**Date:** 2026-06-03 · **Status:** Graduated (all phase targets met) · **Model used:** ran as a Claude Code agent loop
+**Date:** 2026-06-03 · **Status:** Graduated (all phase targets met) · **Model used:** ran as an autonomous coding-agent loop
 
 This report documents *everything tried and done* during the AutoResearch run on FanSphere AI —
 a Karpathy-style ratchet loop (propose → test → keep-if-better → revert-if-not → repeat) applied to
@@ -151,7 +151,7 @@ warrants its own review + dashboard rebuild.
 - **Small fixture sample:** 10 fixtures / 2 rivalry → `rivalry_auc` is coarse (steps of ~0.06). Gains are
   chunky; the margin term provided the fine gradient. Clustering (3,628 authors) does not have this problem.
 - **"60% of plan" is a proxy:** the guardrail measures against your own rolling-max 5h ccusage block, not a
-  literal Anthropic billing cap (which isn't exposed to scripts).
+  literal provider billing cap (which isn't exposed to scripts).
 - **Phases optimized independently:** the per-phase metric never scored all three changes jointly; the §6
   combined run was a separate manual check (which confirmed they compound).
 - **El Clásico #2, not #1, in the combined config** — the metric rewards *rivalry separation*, which is
@@ -162,7 +162,7 @@ warrants its own review + dashboard rebuild.
 ## 9. Reproducibility
 
 - **Control file:** `budget.json` (phases, baselines, per-phase best, targets, guardrail + completion config).
-- **Hypotheses:** `program.md`. **Agent loop:** `CLAUDE.md`. **Evaluator (frozen):** `evaluate.py`.
+- **Hypotheses:** `program.md`. **Agent loop:** `AGENT.md`. **Evaluator (frozen):** `evaluate.py`.
 - **Per-iteration log:** `results_log.md`. **Winning configs** are left in `experiment_{1,2,3}_*.py`.
 - **Deps:** existing stack + `textblob` (Phase 2); `ccusage` via `npx` (guardrail). DuckDB/scipy/transformers
   not required.
